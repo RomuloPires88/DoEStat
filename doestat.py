@@ -84,7 +84,7 @@ class Taguchi:
     def __init__(self, x, y, T = 0, sn = None, mrpi = None, r1 = None, r2 = None):
         self.X = x # Matrix X
         # self.y = y # removed to include s/n ratio
-        self.T = T # Target value
+        self.T = T # Target value !!! Maybe split in two values, one for r1 and other for r2 or create another variable
         self.sn = sn # Quality caracteristic
         self.mrpi = mrpi # Multi-Response Performance Index
         self.r1 = r1 # Vector 1
@@ -99,7 +99,6 @@ class Taguchi:
             self.y = pd.DataFrame(-10 * np.log10(np.mean((1/y)**2, axis=1)))
         elif self.sn == None and self.mrpi == None:
             self.y = y
-
 
         # MRPI
         if self.mrpi in ["wgt", "env"]:
@@ -125,11 +124,11 @@ class Taguchi:
                 ("max", "min"): (get_weight(y1, "max"), get_weight(y2, "min")),
                 ("min", "max"): (get_weight(y1, "min"), get_weight(y2, "max")),
                 ("min", "min"): (get_weight(y1, "min"), get_weight(y2, "min")),
-                ("target", "max"): (get_weight(y1, "target"), get_weight(y2, "max")),
-                ("target", "min"): (get_weight(y1, "target"), get_weight(y2, "min")),
+                ("target", "max"): (get_weight(y1, "target"), get_weight(y2, "max")), # Maybe doesnt exist
+                ("target", "min"): (get_weight(y1, "target"), get_weight(y2, "min")), # Maybe doesnt exist
                 ("max", "target"): (get_weight(y1, "max"), get_weight(y2, "target")),
                 ("min", "target"): (get_weight(y1, "min"), get_weight(y2, "target")),
-                ("target", "target"): (get_weight(y1, "target"), get_weight(y2, "target"))
+                ("target", "target"): (get_weight(y1, "target"), get_weight(y2, "target")) # Maybe doesnt exist
             }
 
         # Process MRPI calculation for weight or envelopment
@@ -154,24 +153,21 @@ class Taguchi:
         if (self.r1 or self.r2) == "target" and self.T == 0:
             print(f"\nThe nominal value T was not choosen")
 
-    @property
-    def __matrix_x(self):
+    @property 
+    def __matrix_x(self): # Matrix with factors and interactions
         return self.X
 
-    @property
-    def vector_y(self):
-        """
-        Array of experimental results or s/n ratio
-        """
+    @property 
+    def vector_y(self): # Array for calculated response(s)
         return self.y
 
-    @property
-    def __total_mean(self):
+    @property 
+    def __total_mean(self): # Mean of vector y
         return (self.y.mean().mean())
 
     @property
-    def __sum_by_level(self):
-        results = {} # Dictionary
+    def __sum_by_level(self): # Sum of y by level
+        results = {} # Empty dictionary
         combined_responses = self.y.sum(axis=1) # Sum of responses
         
         # For each collunm in X, calculate sum by level
@@ -181,13 +177,12 @@ class Taguchi:
                 'Level': grouped.index,
                 'Sum': grouped.values,
                 'Number of experiments': self.X.groupby(column).size()*self.y.shape[1]
-            })
-            
+            })     
         return results
     
     @property
-    def __mean_by_level(self):
-        results = {} # Dictionary
+    def __mean_by_level(self): # Mean of y by level
+        results = {} # Empty dictionary
         combined_responses = self.y.mean(axis=1) # Mean of responses
         
         # For each collunm in X, calculate mean by level
@@ -200,7 +195,7 @@ class Taguchi:
                 'Difference':[diff_abs] * len(grouped)
             })
 
-        #Order "Difference"
+        #Order by "Difference"
         ranges = {factor: df["Difference"].iloc[0] for factor, df in results.items()}
         sorted_ranges = pd.Series(ranges).rank(ascending=False).astype(int)
 
@@ -210,11 +205,9 @@ class Taguchi:
             
         return results
 
-    def __sum_table(self):
-        """
-        Creates a summary table with levels as rows and factors as columns for sum.
-        """
-        # Build a dictionary a the final DataFrame
+    def __sum_table(self): # Creates a summary table with levels as rows and factors as columns for sum
+
+        # Build a dictionary for the final DataFrame
         summary_data = {"Factor/Interactions": []}
         levels = None
     
@@ -239,10 +232,8 @@ class Taguchi:
         
         return df
     
-    def __mean_table(self):
-        """
-        Creates a summary table with levels as rows and factors as columns for mean.
-        """
+    def __mean_table(self): # Creates a summary table with levels as rows and factors as columns for mean
+
         # Build a dictionary a the final DataFrame
         summary_data = {"Factor/Interactions": []}
         levels = None
@@ -275,21 +266,21 @@ class Taguchi:
         df = pd.DataFrame(summary_data)
     
         return df
-
-    def __effect_graph(self):
+        
+    def __effect_graph(self): # Create the effect graph
         mean_data = self.__mean_by_level # Import the mean and difference for factors
         __total_mean = self.__total_mean # Import the total mean
         plt.figure(figsize=(10, 6))
 
         # Iteration
         for factor, df in mean_data.items():
-            levels = df['Level'].apply(lambda x: f'{factor}{x}')  # Build names for levels
-            means = df['Mean']  # Obtém as médias de cada nível
+            levels = df['Level'].apply(lambda x: f'{factor}{x}')  # Create the name for levels
+            means = df['Mean']  # Get the mean for each level
             
-            # Add scatter
-            plt.scatter(levels, means, label=f'Factor {factor}', color = 'blue', s=25)
-            plt.plot(levels, means, label=f'Factor {factor}', color='blue', linewidth=1, linestyle='-')
-            plt.axhline(y=__total_mean, color='red', linestyle='--', linewidth=1, label='total_mean')
+            # Plot the graph
+            plt.scatter(levels, means, label=f'Factor {factor}', color = 'blue', s=25) # Add scatter
+            plt.plot(levels, means, label=f'Factor {factor}', color='blue', linewidth=1, linestyle='-') # Add line for factors
+            plt.axhline(y=__total_mean, color='red', linestyle='--', linewidth=1, label='total_mean') # Add line for total mean
     
         # Graph parameters
         # plt.title('Effect Graph')
@@ -300,10 +291,14 @@ class Taguchi:
         
         #  Show graph
         plt.tight_layout()
+        plt.savefig('Effect Graph.png',transparent=True) # Save figure 
         plt.show()
         
     @property
-    def effect_analysis(self):
+    def effect_analysis(self): 
+        """
+        Show the sum table, mean table and effect graph
+        """
         # Diplay the sum table
         display(HTML("<div style='text-align: center; font-weight: bold;'>Sum of Results</div>"))
         display(HTML("<div style='display: flex; justify-content: center;'>" + self.__sum_table().to_html() + "</div>"))
@@ -318,7 +313,7 @@ class Taguchi:
         self.__effect_graph()
     
     @property
-    def prev(self):
+    def prev(self): # !!!! Modify this part to inluded parameters
         """
         Predict the exprimental results by choosed Effect/Interaction more important
         """
@@ -383,7 +378,7 @@ class Taguchi:
         display(HTML("<div style='display: flex; justify-content: left;'>" + str(predict.round(2)) + "</div>"))
     
     @property
-    def check_interaction(self):
+    def check_interaction(self): # !!!! Modify this part to inluded parameters
         """
         Method to calculate the mean of responses for combinations of two selected factors and their levels.
         """
@@ -421,8 +416,9 @@ class Taguchi:
         # Reorganize the columns 
         result_table = combinations[["Combination", "Mean"]]
         
-        # # Show the table result
+        # Show the table result
         display(HTML(result_table.to_html(index=False)))
+        
         # Plot graph
         x1 = result_table['Combination'][0] + '\n' + result_table['Combination'][2], result_table['Combination'][1] + '\n' + result_table['Combination'][3]
         y1 = result_table['Mean'][0], result_table['Mean'][1]
@@ -440,6 +436,7 @@ class Taguchi:
         plt.xticks()
         plt.grid(True)
         plt.tight_layout()
+        plt.savefig('Interaction Graph.png',transparent=True) # Save figure
         plt.show()
 
         # Severity index
@@ -453,6 +450,7 @@ class Taguchi:
     
     def anova(self, method = None, column_error = None):
         """
+        Returns the ANOVA table
         """       
         # CF: Correction factor
         cf = (((self.y.sum()).sum()) ** 2) / self.y.size
@@ -468,48 +466,48 @@ class Taguchi:
             counts = df['Number of experiments']
             ssa[column] = (((sum_of_squares / counts)).sum()) - cf
         
-        # GL: Degrees of Freedom
-        gl = {}
+        # dof: Degrees of Freedom
+        dof = {}
         combined_responses = self.y.sum(axis=1)
         for column in self.X.columns:
             grouped = self.X.groupby(column).apply(lambda group: combined_responses[group.index].sum())
-            gl_value = max(grouped.index) - 1
-            gl[column] = gl_value
+            dof_value = max(grouped.index) - 1
+            dof[column] = dof_value
         
         # MSA: Mean Squares for each factor
-        msa = {key: ssa[key] / gl[key] for key in ssa if key in gl}
+        msa = {key: ssa[key] / dof[key] for key in ssa if key in dof}
         
         # RSS: Residual Sum of Squares
         if method == 'Replica':
             rss_replica = sstotal - sum(ssa.values())
-            gl_replica = (self.y.shape[1] - 1) * self.y.shape[0]
+            dof_replica = (self.y.shape[1] - 1) * self.y.shape[0]
         else:
             rss_replica = 0
-            gl_replica = 0
+            dof_replica = 0
 
         # RSS: Residual by error
         if column_error:
             rss_error = sum(ssa[col] for col in column_error if col in ssa)
-            gl_error = sum(gl[col] for col in column_error if col in gl)
+            dof_error = sum(dof[col] for col in column_error if col in dof)
         else:
             rss_error = 0
-            gl_error = 0
+            dof_error = 0
 
         # Total of residual
         rss = rss_replica + rss_error
-        gl_rss = gl_replica + gl_error
+        dof_rss = dof_replica + dof_error
 
         # F Tabulated
-        if gl_rss is not None:
-            gl1 = list(gl.values())[0]  # Numerator degrees of freedom
-            gl2 = gl_rss  # Denominator degrees of freedom
+        if dof_rss is not None:
+            dof1 = list(dof.values())[0]  # Numerator degrees of freedom
+            dof2 = dof_rss  # Denominator degrees of freedom
             alpha = 0.05  # 95% confidence
-            f_tab = f.ppf(1 - alpha, gl1, gl2)
+            f_tab = f.ppf(1 - alpha, dof1, dof2)
         else:
             f_tab = None
         # F Test
-        if gl_rss > 0:
-            msa_rss = rss/gl_rss
+        if dof_rss > 0:
+            msa_rss = rss/dof_rss
         else:
             msa_rss = 1
 
@@ -522,22 +520,23 @@ class Taguchi:
             "cf": cf,
             "sstotal": sstotal,
             "ssa": ssa,
-            "gl": gl,
+            "df": dof,
             "msa": msa,
-            "rss": (rss, gl_rss),
+            "rss": (rss, dof_rss),
             "f_tab": f_tab
         }
-      
+        
         # DataFrame ANOVA
         df = pd.DataFrame({
             "Variables": list(ssa.keys()),
             "Sum of Squares": list(ssa.values()),
-            "Df": list(gl.values()),
+            "Df": list(dof.values()),
             "Mean of Squares": list(msa.values()),
             "F-test": [(x / msa_rss) if column_error else "" for x in list(msa.values())],
             "C(%)": list(percent_contrib.values()),
             "Order": None
         })
+        
         # Add order by C(%)
         order_series = df["C(%)"].rank(ascending=False, method="dense").astype(int)
         df["Order"] = order_series
@@ -550,7 +549,7 @@ class Taguchi:
         rss_line = {
             "Variables": "Residual",
             "Sum of Squares":rss,
-            "Df": gl_rss,
+            "Df": dof_rss,
             "Mean of Squares": msa_rss if column_error else "",
             "F-test": "",
             "C(%)": sum(percent_contrib.values()),
@@ -559,21 +558,21 @@ class Taguchi:
         total_line = {
             "Variables": "Total",
             "Sum of Squares": sstotal,
-            "Df": sum(gl.values())+gl_replica, # sum all factors and replica if exist
+            "Df": sum(dof.values())+dof_replica, # sum all factors and replica if exist
             "Mean of Squares": "",
-            "F-test": f"F(0.05;1;{gl_rss}) = {f_tab:.2f}" if column_error else "",
+            "F-test": f"F(0.05;1;{dof_rss}) = {f_tab:.2f}" if column_error else "",
             "C(%)": "",
             "Order": "",
         }
         
-        # Adicionando ao DataFrame
+        # Concatante all results to the DataFrame
         df = pd.concat([df, pd.DataFrame([rss_line, total_line])], ignore_index=True)
 
         return df
         # return self._cache
 
 
-    def _get_cached_property(self, name):
+    def __get_cached_property(self, name): # Delete this, maybe
         if name not in self._cache:
             self._calculate()
         return self._cache[name]
