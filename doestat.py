@@ -13,7 +13,7 @@ import sys #library for surface graph
 from sympy import symbols #sympy library for symbols, diff, solve and subs
 import plotly.io as pio
 
-
+# Última alteração 17/12/2024 Romulo
 class Taguchi:
     """
     Class -> Taguchi(X, y)
