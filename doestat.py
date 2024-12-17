@@ -16,69 +16,82 @@ import plotly.io as pio
 
 class Taguchi:
     """
-    Class -> Taguchi(X, y) 
-    A class to calculate Design of Experiments (DOE) using the Taguchi method.
-
+    Class -> Taguchi(X, y)
+    
+    A class designed to perform Design of Experiments (DOE) using the Taguchi method, 
+    a robust statistical approach widely used in quality engineering.
+    
     Features:
-    - Supports Signal-to-Noise (S/N) ratios for evaluating quality characteristics.
-    - Handles multiple responses with different units using Multi-Response Performance Index (MRPI).
-
+    - Signal-to-Noise (S/N) Ratios: Supports evaluation of quality characteristics using three types of S/N ratios:
+      - "Bigger is better"
+      - "Smaller is better"
+      - "Nominal is better"
+    - Multi-Response Performance Index (MRPI): Capable of handling multiple responses with different units, using:
+      - Weighted methods ("wgt")
+      - Envelopment methods ("env")
+    - Flexibility in defining response objectives and quality characteristics for multiple responses.
+    
     Parameters:
     -----------
     X : matrix
-        Matrix containing the factors (effects/interactions) to be calculated.
+        Matrix containing the factors (effects/interactions) to be analyzed in the DOE.
     y : array-like
-        Vector or matrix containing the response(s).
+        Vector or matrix containing the response(s). Can handle single or multiple responses.
     T : float, optional (default=0)
-        Target value for "Nominal is better" S/N ratio.
+        Target value for the "Nominal is better" S/N ratio.
     sn : str, optional (default=None)
-        Specifies the quality characteristic:
+        Specifies the quality characteristic for S/N ratio:
         - "max"    -> "Bigger is better"
-        - "target" -> "Nominal is better"
         - "min"    -> "Smaller is better"
+        - "target" -> "Nominal is better"
     mrpi : str, optional (default=None)
         Specifies the method for multi-response evaluation:
         - "wgt" -> Weighted method
         - "env" -> Envelopment method
     r1, r2 : str, optional (default=None)
-        Specify quality characteristics for multiple responses:
-        - "max" -> "Bigger is better"
-        - "min" -> "Smaller is better"
+        Quality characteristics for multiple responses:
+        - "max"    -> "Bigger is better"
+        - "min"    -> "Smaller is better"
         - "target" -> "Nominal is better"
-
+    
     Attributes:
     -----------
     y : array-like
         The processed response vector/matrix after applying S/N ratios or MRPI.
     vector_y : array-like
-        Returns the final response vector for analysis.
-
+        Returns the final response vector or matrix ready for analysis.
+    
     Methods:
     --------
     1. vector_y : 
         Returns the processed response vector or matrix.
-        Usage: `doe.Taguchi(X, y).vector_y`
-
+        Usage: doe.Taguchi(X, y).vector_y
+    
     2. effect_analysis : 
-        Returns the total responses for each factor level and displays the effect graph.
-        Usage: `doe.Taguchi(X, y).effect_analysis()`
-
+        Calculates the total response for each factor level and visualizes their effects in a graph.
+        Usage: doe.Taguchi(X, y).effect_analysis
+    
     3. check_interactions : 
-        Displays interaction graphs between selected factors.
-        Usage: `doe.Taguchi(X, y).check_interactions()`
-
+        Displays interaction graphs between selected factors, highlighting dependencies and interactions.
+        Usage: doe.Taguchi(X, y).check_interactions()
+    
     4. prev : 
-        Returns the predicted response values for selected factors/interactions.
-        Usage: `doe.Taguchi(X, y).prev()`
-
+        Predicts the response values for selected factors or interactions based on the DOE design.
+        Usage: doe.Taguchi(X, y).prev()
+    
     5. anova : 
-        Returns the ANOVA table for the design.
-        Usage: `doe.Taguchi(X, y).anova()`
-
+        Performs Analysis of Variance (ANOVA) and returns a table summarizing the variance contributions of each factor.
+        Usage: doe.Taguchi(X, y).anova()
+    
     Notes:
     ------
-    - The class is designed for applications of the Taguchi method in quality engineering.
-    - Ensure the input data is appropriately formatted for the DOE framework.
+    - This class is tailored for applications of the Taguchi method in quality engineering,
+        providing tools to optimize processes and improve quality metrics.
+    - Ensure the input data (X and y) is formatted correctly:
+      - X should be a matrix representing the experimental design.
+      - y should be a vector or matrix of responses with consistent dimensions relative to X.
+    - When using MRPI with multiple responses, ensure appropriate quality characteristics 
+      (r1, r2) and methods ("wgt" or "env") are defined.
     """
     
     def __init__(self, x, y, T = 0, sn = None, mrpi = None, r1 = None, r2 = None):
@@ -312,6 +325,72 @@ class Taguchi:
         display(HTML("<div style='text-align: center; font-weight: bold; font-size: 18px;'>Effect Graph</div>"))
         self.__effect_graph()
     
+    # @property # Versão para Eurospuma
+    # def prev(self): # !!!! Modify this part to inluded parameters
+    #     """
+    #     Predict the exprimental results by choosed Effect/Interaction more important
+    #     """
+    #     mean_data = self.__mean_by_level  # Access the precomputed means
+        
+    #     # List available factors
+    #     print("Available Effect/Interactions:")
+    #     for factor in mean_data.keys():
+    #         print(f"- {factor}")
+    
+    #     # Ask user for factor
+    #     selected_factors = input("\nEnter the Effect/Interactions of interest (comma-separated): ").strip().split(',')
+    #     selected_factors = [factor.strip() for factor in selected_factors]
+        
+    #     # Validate selected factors
+    #     invalid_factors = [factor for factor in selected_factors if factor not in mean_data]
+    #     if invalid_factors:
+    #         print(f"Error: The following factors are not valid: {', '.join(invalid_factors)}")
+    #         print('Tips: The Available Effect/Interactions is case sensitive')
+    #         return
+    
+    #     # Initialize dictionary to store results
+    #     results = {}
+    
+    #     # Process each selected factor
+    #     for factor in selected_factors:
+    #         print(f"\nAvailable Levels for {factor}: {mean_data[factor]['Level'].tolist()}")
+            
+    #         # Ask user for a single level
+    #         try:
+    #             selected_level = int(input(f"Enter the Level of interest for {factor}: ").strip())
+    #         except ValueError:
+    #             print(f"Error: Level for {factor} must be an integer.")
+    #             return
+            
+    #         # Validate selected levels
+    #         valid_levels = mean_data[factor]["Level"].tolist()
+    #         if selected_level not in valid_levels:
+    #             print(f"Error: The selected level {selected_level} is not valid for {factor}.")
+    #             return
+    
+    #         # Retrieve the means for the valid levels
+    #         mean = mean_data[factor].loc[
+    #             mean_data[factor]["Level"] == selected_level, ["Level", "Mean"]
+    #         ]
+    #         results[factor] = mean
+    
+    #     # Display the results
+    #     #print("\nSelected Effect/Interactions and Levels with their Means:")
+    #     total_sum = 0  # Initialize the total sum
+    #     total_items = 0
+    #     for factor, data in results.items():
+    #         #print(f"\nFactor: {factor}")
+    #         #print(data.to_string(index=False))
+    #         #print(self.__total_mean)
+    #         total_sum += data['Mean'].sum()
+    #         total_items += len(data['Mean'])
+
+    #     predict = total_sum - (total_items - 1)*self.__total_mean
+        
+    #     display(HTML("<div style='text-align: left; font-weight: bold;'>The predict value is:</div>"))
+    #     display(HTML("<div style='display: flex; justify-content: left;'>" + str(predict.round(2)) + "</div>"))
+
+    
     def prev(self, factors=None): 
         """
         Predict the experimental results by chosen Effect/Interaction factors.
@@ -374,6 +453,79 @@ class Taguchi:
         # Display the results
         display(HTML("<div style='text-align: left; font-weight: bold;'>The predict value is:</div>"))
         display(HTML("<div style='display: flex; justify-content: left;'>" + str(predict.round(2)) + "</div>"))
+    
+        # return predict
+
+    # @property
+    # def check_interaction(self): # Versão Eurospuma
+    #     """
+    #     Method to calculate the mean of responses for combinations of two selected factors and their levels.
+    #     """
+    #     # Ask user for factor
+    #     factors = list(self.X.columns)  # Get the factors
+    #     print(f"Available Factors: {', '.join(factors)}")
+        
+    #     selected_factors = []
+    #     for i in range(2):
+    #         while True:
+    #             factor = input(f"Select factor {i + 1} (from the available factors): ").strip()
+    #             if factor in factors and factor not in selected_factors:
+    #                 selected_factors.append(factor)
+    #                 break
+    #             else:
+    #                 print("Invalid input or factor already selected. Please try again.")
+        
+    #     # Check if two factors was selected
+    #     if len(selected_factors) != 2:
+    #         print("You must select exactly two factors.")
+    #         return None
+        
+    #     factor1, factor2 = selected_factors
+    
+    #     # Calculate the mean for factors by levels
+    #     combinations = (
+    #         self.X.groupby([factor1, factor2])
+    #         .apply(lambda group: self.y.iloc[group.index].mean(axis=1).mean())  # Mean of experimental results
+    #         .reset_index(name="Mean")
+    #     )
+        
+    #     # Create the column for combinations
+    #     combinations["Combination"] = factor1 + combinations[factor1].astype(str) + factor2 + combinations[factor2].astype(str)
+        
+    #     # Reorganize the columns 
+    #     result_table = combinations[["Combination", "Mean"]]
+        
+    #     # Show the table result
+    #     display(HTML(result_table.to_html(index=False)))
+        
+    #     # Plot graph
+    #     x1 = result_table['Combination'][0] + '\n' + result_table['Combination'][2], result_table['Combination'][1] + '\n' + result_table['Combination'][3]
+    #     y1 = result_table['Mean'][0], result_table['Mean'][1]
+        
+    #     x2 = result_table['Combination'][0] + '\n' + result_table['Combination'][2], result_table['Combination'][1] + '\n' + result_table['Combination'][3]   
+    #     y2 = result_table['Mean'][2], result_table['Mean'][3]
+        
+    #     plt.figure(figsize=(4, 3))
+    #     plt.scatter(x1, y1, color = 'blue', s=25)
+    #     plt.plot(x1, y1, color='blue', linewidth=1, linestyle='-')
+    #     plt.scatter(x2, y2, color = 'blue', s=25)
+    #     plt.plot(x2, y2, color='blue', linewidth=1, linestyle='-')
+    #     #plt.xlabel('Combination')
+    #     plt.ylabel('Mean Values')
+    #     plt.xticks()
+    #     plt.grid(True)
+    #     plt.tight_layout()
+    #     plt.savefig('Interaction Graph.png',transparent=True) # Save figure
+    #     plt.show()
+
+    #     # Severity index
+    #     max_mean = result_table['Mean'].max()
+    #     min_mean = result_table['Mean'].min()
+    #     si = ((abs((result_table['Mean'][1] - result_table['Mean'][0]) - (result_table['Mean'][3] - result_table['Mean'][2])))/(2*(max_mean - min_mean)))*100
+
+    #     display(HTML("<div style='text-align: left; font-weight: bold;'>The Severity Index (SI) is:</div>"))
+    #     display(HTML("<div style='display: flex; justify-content: left;'>" + str(si.round(2)) +'%' + "</div>"))
+
     
     def check_interaction(self,factors=None): # Check this for factors with more than 2 levels
         """
@@ -452,6 +604,14 @@ class Taguchi:
     def anova(self, method = None, column_error = None):
         """
         Returns the ANOVA table
+        
+        Parameters:
+        method (str): 'Replica'. Use the replica of experiments to calculate the data in ANOVA
+        column_error(list): List of factors/interactions to used for residual calculation
+
+        Example:
+        .anova(method='Replica')
+        .anova(column_error=['B','D','E'])
         """       
         # CF: Correction factor
         cf = (((self.y.sum()).sum()) ** 2) / self.y.size
@@ -510,12 +670,11 @@ class Taguchi:
         if dof_rss > 0:
             msa_rss = rss/dof_rss
         else:
-            msa_rss = 1
+            msa_rss = 1 # Avoid error
 
         # C(%)
-        total_ssa = sum(list(ssa.values()))
-        percent_contrib = {key: (value / total_ssa) * 100 for key, value in list(ssa.items())}
-        
+        percent_contrib = {key: (value / sstotal) * 100 for key, value in list(ssa.items())}
+      
         # Cache results for reuse
         self._cache = {
             "cf": cf,
@@ -533,7 +692,7 @@ class Taguchi:
             "Sum of Squares": list(ssa.values()),
             "Df": list(dof.values()),
             "Mean of Squares": list(msa.values()),
-            "F-test": [(x / msa_rss) if column_error else "" for x in list(msa.values())],
+            "F-test": [(x / msa_rss) if column_error or method else "" for x in list(msa.values())],
             "C(%)": list(percent_contrib.values()),
             "Order": None
         })
@@ -551,9 +710,9 @@ class Taguchi:
             "Variables": "Residual",
             "Sum of Squares":rss,
             "Df": dof_rss,
-            "Mean of Squares": msa_rss if column_error else "",
+            "Mean of Squares": msa_rss if column_error or method else "",
             "F-test": "",
-            "C(%)": sum(percent_contrib.values()),
+            "C(%)": (rss/sstotal)*100,
             "Order": "",
         }
         total_line = {
@@ -561,8 +720,8 @@ class Taguchi:
             "Sum of Squares": sstotal,
             "Df": sum(dof.values())+dof_replica, # sum all factors and replica if exist
             "Mean of Squares": "",
-            "F-test": f"F(0.05;1;{dof_rss}) = {f_tab:.2f}" if column_error else "",
-            "C(%)": "",
+            "F-test": f"F(0.05;1;{dof_rss}) = {f_tab:.2f}" if column_error or method else "",
+            "C(%)": sum(value for key, value in percent_contrib.items() if not column_error or key not in column_error) + (rss/sstotal)*100,
             "Order": "",
         }
         
@@ -577,3 +736,21 @@ class Taguchi:
         if name not in self._cache:
             self._calculate()
         return self._cache[name]
+
+    def ri(self,sn0=0,sn1=0): #Relative improvement
+        """
+        Return the relative improvement of optimization for a selected essay.
+
+        Parameters:
+        sn0 (float): S/N ratio of selected essay
+        sn1 (float): S/N ratio of optimization value
+
+        Example:
+        .ri(sn0=32,sn1=34)
+        """
+        if sn0 and sn1 !=0:
+            ri = (1-10**(-(sn1-sn0)/10))*100
+            display(HTML("<div style='text-align: left; font-weight: bold;'>The predict value is:</div>"))
+            display(HTML("<div style='display: flex; justify-content: left;'>" + str(round(ri,3)) + " %</div>"))
+        else:
+            print('Chose correctly which S/N ratio you need to compare')
