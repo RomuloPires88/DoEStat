@@ -325,72 +325,6 @@ class Taguchi:
         display(HTML("<div style='text-align: center; font-weight: bold; font-size: 18px;'>Effect Graph</div>"))
         self.__effect_graph()
     
-    # @property # Versão para Eurospuma
-    # def prev(self): # !!!! Modify this part to inluded parameters
-    #     """
-    #     Predict the exprimental results by choosed Effect/Interaction more important
-    #     """
-    #     mean_data = self.__mean_by_level  # Access the precomputed means
-        
-    #     # List available factors
-    #     print("Available Effect/Interactions:")
-    #     for factor in mean_data.keys():
-    #         print(f"- {factor}")
-    
-    #     # Ask user for factor
-    #     selected_factors = input("\nEnter the Effect/Interactions of interest (comma-separated): ").strip().split(',')
-    #     selected_factors = [factor.strip() for factor in selected_factors]
-        
-    #     # Validate selected factors
-    #     invalid_factors = [factor for factor in selected_factors if factor not in mean_data]
-    #     if invalid_factors:
-    #         print(f"Error: The following factors are not valid: {', '.join(invalid_factors)}")
-    #         print('Tips: The Available Effect/Interactions is case sensitive')
-    #         return
-    
-    #     # Initialize dictionary to store results
-    #     results = {}
-    
-    #     # Process each selected factor
-    #     for factor in selected_factors:
-    #         print(f"\nAvailable Levels for {factor}: {mean_data[factor]['Level'].tolist()}")
-            
-    #         # Ask user for a single level
-    #         try:
-    #             selected_level = int(input(f"Enter the Level of interest for {factor}: ").strip())
-    #         except ValueError:
-    #             print(f"Error: Level for {factor} must be an integer.")
-    #             return
-            
-    #         # Validate selected levels
-    #         valid_levels = mean_data[factor]["Level"].tolist()
-    #         if selected_level not in valid_levels:
-    #             print(f"Error: The selected level {selected_level} is not valid for {factor}.")
-    #             return
-    
-    #         # Retrieve the means for the valid levels
-    #         mean = mean_data[factor].loc[
-    #             mean_data[factor]["Level"] == selected_level, ["Level", "Mean"]
-    #         ]
-    #         results[factor] = mean
-    
-    #     # Display the results
-    #     #print("\nSelected Effect/Interactions and Levels with their Means:")
-    #     total_sum = 0  # Initialize the total sum
-    #     total_items = 0
-    #     for factor, data in results.items():
-    #         #print(f"\nFactor: {factor}")
-    #         #print(data.to_string(index=False))
-    #         #print(self.__total_mean)
-    #         total_sum += data['Mean'].sum()
-    #         total_items += len(data['Mean'])
-
-    #     predict = total_sum - (total_items - 1)*self.__total_mean
-        
-    #     display(HTML("<div style='text-align: left; font-weight: bold;'>The predict value is:</div>"))
-    #     display(HTML("<div style='display: flex; justify-content: left;'>" + str(predict.round(2)) + "</div>"))
-
-    
     def prev(self, factors=None): 
         """
         Predict the experimental results by chosen Effect/Interaction factors.
@@ -455,77 +389,6 @@ class Taguchi:
         display(HTML("<div style='display: flex; justify-content: left;'>" + str(predict.round(2)) + "</div>"))
     
         # return predict
-
-    # @property
-    # def check_interaction(self): # Versão Eurospuma
-    #     """
-    #     Method to calculate the mean of responses for combinations of two selected factors and their levels.
-    #     """
-    #     # Ask user for factor
-    #     factors = list(self.X.columns)  # Get the factors
-    #     print(f"Available Factors: {', '.join(factors)}")
-        
-    #     selected_factors = []
-    #     for i in range(2):
-    #         while True:
-    #             factor = input(f"Select factor {i + 1} (from the available factors): ").strip()
-    #             if factor in factors and factor not in selected_factors:
-    #                 selected_factors.append(factor)
-    #                 break
-    #             else:
-    #                 print("Invalid input or factor already selected. Please try again.")
-        
-    #     # Check if two factors was selected
-    #     if len(selected_factors) != 2:
-    #         print("You must select exactly two factors.")
-    #         return None
-        
-    #     factor1, factor2 = selected_factors
-    
-    #     # Calculate the mean for factors by levels
-    #     combinations = (
-    #         self.X.groupby([factor1, factor2])
-    #         .apply(lambda group: self.y.iloc[group.index].mean(axis=1).mean())  # Mean of experimental results
-    #         .reset_index(name="Mean")
-    #     )
-        
-    #     # Create the column for combinations
-    #     combinations["Combination"] = factor1 + combinations[factor1].astype(str) + factor2 + combinations[factor2].astype(str)
-        
-    #     # Reorganize the columns 
-    #     result_table = combinations[["Combination", "Mean"]]
-        
-    #     # Show the table result
-    #     display(HTML(result_table.to_html(index=False)))
-        
-    #     # Plot graph
-    #     x1 = result_table['Combination'][0] + '\n' + result_table['Combination'][2], result_table['Combination'][1] + '\n' + result_table['Combination'][3]
-    #     y1 = result_table['Mean'][0], result_table['Mean'][1]
-        
-    #     x2 = result_table['Combination'][0] + '\n' + result_table['Combination'][2], result_table['Combination'][1] + '\n' + result_table['Combination'][3]   
-    #     y2 = result_table['Mean'][2], result_table['Mean'][3]
-        
-    #     plt.figure(figsize=(4, 3))
-    #     plt.scatter(x1, y1, color = 'blue', s=25)
-    #     plt.plot(x1, y1, color='blue', linewidth=1, linestyle='-')
-    #     plt.scatter(x2, y2, color = 'blue', s=25)
-    #     plt.plot(x2, y2, color='blue', linewidth=1, linestyle='-')
-    #     #plt.xlabel('Combination')
-    #     plt.ylabel('Mean Values')
-    #     plt.xticks()
-    #     plt.grid(True)
-    #     plt.tight_layout()
-    #     plt.savefig('Interaction Graph.png',transparent=True) # Save figure
-    #     plt.show()
-
-    #     # Severity index
-    #     max_mean = result_table['Mean'].max()
-    #     min_mean = result_table['Mean'].min()
-    #     si = ((abs((result_table['Mean'][1] - result_table['Mean'][0]) - (result_table['Mean'][3] - result_table['Mean'][2])))/(2*(max_mean - min_mean)))*100
-
-    #     display(HTML("<div style='text-align: left; font-weight: bold;'>The Severity Index (SI) is:</div>"))
-    #     display(HTML("<div style='display: flex; justify-content: left;'>" + str(si.round(2)) +'%' + "</div>"))
-
     
     def check_interaction(self,factors=None): # Check this for factors with more than 2 levels
         """
@@ -541,8 +404,7 @@ class Taguchi:
         selected_factors = factors.strip().split(',')
         results = {}
         # print(mean_data) # check Data
-        
-        
+            
         # Check if two factors was selected
         if len(selected_factors) != 2:
             print("You must select exactly two factors.")
