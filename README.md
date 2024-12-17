@@ -1,5 +1,3 @@
-# doe
-
 # Taguchi DOE Class
 
 A Python implementation of the **Taguchi Method** for Design of Experiments (DOE), providing tools to optimize processes, analyze factor effects, and evaluate quality metrics in robust engineering applications.
