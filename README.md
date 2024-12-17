@@ -139,11 +139,11 @@ DataFrame
 
 doe.Taguchi(X,y).effect_analysis
 [out]
-![Effect Analysis](assets/4c6c51bb-4253-4764-8256-afa375229ebd.png)
+![imagem](https://github.com/user-attachments/assets/4c6c51bb-4253-4764-8256-afa375229ebd)
 
-![Second Analysis](assets/31d81a18-79fe-4343-9b54-bca1cf69724c.png)
+![imagem](https://github.com/user-attachments/assets/31d81a18-79fe-4343-9b54-bca1cf69724c)
 
-![Third Analysis](assets/8373f369-2a03-471a-adc9-ac570bad62af.png)
+![imagem](https://github.com/user-attachments/assets/8373f369-2a03-471a-adc9-ac570bad62af)
 
 doe.Taguchi(X,y).prev('F-1,E-1,A-1')
 [out]
