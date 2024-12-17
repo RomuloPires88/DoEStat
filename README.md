@@ -105,7 +105,7 @@ print(X)
 print('Vector y')
 print(y)
 
-out
+[out]
 DataFrame 
       Exp   A  B  C  D  E  F  G  R1  R2
 0        1  1  1  1  1  1  1  1  11  11
@@ -136,6 +136,27 @@ DataFrame
 5   4   3
 6   1   4
 7  10   8
+
+doe.Taguchi(X,y).effect_analysis
+[out]
+![imagem](https://github.com/user-attachments/assets/4c6c51bb-4253-4764-8256-afa375229ebd)
+
+![imagem](https://github.com/user-attachments/assets/31d81a18-79fe-4343-9b54-bca1cf69724c)
+
+![imagem](https://github.com/user-attachments/assets/8373f369-2a03-471a-adc9-ac570bad62af)
+
+doe.Taguchi(X,y).prev('F-1,E-1,A-1')
+[out]
+The predict value is:
+10.38
+
+doe.Taguchi(X,y).anova(method='Replica')
+[out]
+![imagem](https://github.com/user-attachments/assets/544606c3-1d3b-4259-9a03-4cc5b3af3c66)
+
+
+
+
 
 ```
 
