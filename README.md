@@ -53,36 +53,35 @@ pip install numpy matplotlib
 - Returns the processed response vector/matrix.
 - **Usage**:
   ```python
-  doe = Taguchi(X, y)
-  response = doe.vector_y()
+  doe.Taguchi(X, y).vector_y()
   ```
 
 #### `effect_analysis()`
 - Calculates the total response for each factor level and visualizes their effects.
 - **Usage**:
   ```python
-  doe.effect_analysis()
+  doe.Taguchi(X, y).effect_analysis
   ```
 
 #### `check_interactions()`
 - Displays interaction graphs between selected factors.
 - **Usage**:
   ```python
-  doe.check_interactions()
+  doe.Taguchi(X, y).check_interactions()
   ```
 
 #### `prev()`
 - Predicts the response values for selected factors or interactions.
 - **Usage**:
   ```python
-  predicted_response = doe.prev()
+   doe.Taguchi(X, y).prev()
   ```
 
 #### `anova()`
 - Performs Analysis of Variance (ANOVA) and returns a summary table of variance contributions.
 - **Usage**:
   ```python
-  anova_table = doe.anova()
+  doe.Taguchi(X, y).anova()
   ```
 
 ## Notes
@@ -95,44 +94,10 @@ pip install numpy matplotlib
 Here is an example to demonstrate the functionality of the `Taguchi` class:
 
 ```python
-import numpy as np
-from your_module import Taguchi  # Replace 'your_module' with the file name
 
-# Experimental Design Matrix (X)
-X = np.array([
-    [1, 1],
-    [1, 2],
-    [2, 1],
-    [2, 2]
-])
-
-# Response Vector (y)
-y = np.array([15, 20, 30, 35])
-
-# Initialize Taguchi Class
-doe = Taguchi(X, y, sn="max")
-
-# Processed Response Vector
-y_processed = doe.vector_y()
-print("Processed Response:", y_processed)
-
-# Effect Analysis
-doe.effect_analysis()
-
-# Interaction Check
-doe.check_interactions()
-
-# Response Prediction
-predicted = doe.prev()
-print("Predicted Response:", predicted)
-
-# ANOVA Analysis
-anova_table = doe.anova()
-print("ANOVA Table:\n", anova_table)
 ```
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 This class is inspired by the robust statistical methods of the **Taguchi Method**, widely used in quality engineering to optimize processes and improve product quality.
