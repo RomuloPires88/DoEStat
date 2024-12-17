@@ -139,7 +139,7 @@ DataFrame
 
 doe.Taguchi(X,y).effect_analysis
 ```
-[out]
+
 ![imagem](https://github.com/user-attachments/assets/4c6c51bb-4253-4764-8256-afa375229ebd)
 
 ![imagem](https://github.com/user-attachments/assets/31d81a18-79fe-4343-9b54-bca1cf69724c)
