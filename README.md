@@ -56,7 +56,7 @@ pip install numpy matplotlib
   doe.Taguchi(X, y).vector_y()
   ```
 
-#### `effect_analysis()`
+#### `effect_analysis`
 - Calculates the total response for each factor level and visualizes their effects.
 - **Usage**:
   ```python
