@@ -94,6 +94,48 @@ pip install numpy matplotlib
 Here is an example to demonstrate the functionality of the `Taguchi` class:
 
 ```python
+df = pd.read_excel('test.xlsx', sheet_name = 'teste1')
+X = df.iloc[:,1:8]
+y = df.iloc[:,8:]
+
+print('DataFrame')
+print(df)
+print('Matrix X')
+print(X)
+print('Vector y')
+print(y)
+
+out
+DataFrame 
+      Exp   A  B  C  D  E  F  G  R1  R2
+0        1  1  1  1  1  1  1  1  11  11
+1        2  1  1  1  2  2  2  2   4   4
+2        3  1  2  2  1  1  2  2   4  10
+3        4  1  2  2  2  2  1  1   4   8
+4        5  2  1  2  1  2  1  2   9   4
+5        6  2  1  2  2  1  2  1   4   3
+6        7  2  2  1  1  2  2  1   1   4
+7        8  2  2  1  2  1  1  2  10   8 
+ Matrix X 
+    A  B  C  D  E  F  G
+0  1  1  1  1  1  1  1
+1  1  1  1  2  2  2  2
+2  1  2  2  1  1  2  2
+3  1  2  2  2  2  1  1
+4  2  1  2  1  2  1  2
+5  2  1  2  2  1  2  1
+6  2  2  1  1  2  2  1
+7  2  2  1  2  1  1  2 
+ Vector y 
+    R1  R2
+0  11  11
+1   4   4
+2   4  10
+3   4   8
+4   9   4
+5   4   3
+6   1   4
+7  10   8
 
 ```
 
