@@ -138,6 +138,7 @@ DataFrame
 7  10   8
 
 doe.Taguchi(X,y).effect_analysis
+```
 [out]
 ![imagem](https://github.com/user-attachments/assets/4c6c51bb-4253-4764-8256-afa375229ebd)
 
@@ -145,6 +146,7 @@ doe.Taguchi(X,y).effect_analysis
 
 ![imagem](https://github.com/user-attachments/assets/8373f369-2a03-471a-adc9-ac570bad62af)
 
+```python
 doe.Taguchi(X,y).prev('F-1,E-1,A-1')
 [out]
 The predict value is:
