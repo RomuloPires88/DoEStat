@@ -153,14 +153,10 @@ The predict value is:
 10.38
 
 doe.Taguchi(X,y).anova(method='Replica')
-[out]
+```
+
 ![imagem](https://github.com/user-attachments/assets/544606c3-1d3b-4259-9a03-4cc5b3af3c66)
 
-
-
-
-
-```
 
 ## License
 
