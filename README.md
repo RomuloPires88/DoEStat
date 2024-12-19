@@ -104,8 +104,8 @@ print('Matrix X')
 print(X)
 print('Vector y')
 print(y)
-
-[out]
+```
+```python
 DataFrame 
       Exp   A  B  C  D  E  F  G  R1  R2
 0        1  1  1  1  1  1  1  1  11  11
@@ -148,7 +148,8 @@ doe.Taguchi(X,y).effect_analysis
 
 ```python
 doe.Taguchi(X,y).prev('F-1,E-1,A-1')
-[out]
+```
+```python
 The predict value is:
 10.38
 
