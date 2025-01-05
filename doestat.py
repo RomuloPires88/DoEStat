@@ -494,7 +494,7 @@ class Taguchi:
         combined_responses = self.y.sum(axis=1)
         for column in self.X.columns:
             grouped = self.X.groupby(column).apply(lambda group: combined_responses[group.index].sum())
-            dof_value = max(grouped.index) - 1
+            dof_value = len(grouped.index) - 1
             dof[column] = dof_value
         
         # MSA: Mean Squares for each factor
