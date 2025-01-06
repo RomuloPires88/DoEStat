@@ -12,8 +12,9 @@ from IPython.display import display, Latex, Markdown, Math, HTML
 import sys #library for surface graph
 from sympy import symbols #sympy library for symbols, diff, solve and subs
 import plotly.io as pio
+import itertools # Calculate matrices
 
-# Última alteração 17/12/2024 Romulo
+
 class Taguchi:
     """
     Class -> Taguchi(X, y)
@@ -167,11 +168,20 @@ class Taguchi:
             print(f"\nThe nominal value T was not choosen")
 
     @property 
-    def __matrix_x(self): # Matrix with factors and interactions
+    def matrix_x(self): # Matrix with factors and interactions
+        """
+        Returns the design matrix (X) including factors and interactions.
+        This matrix represents the selected experimental design and is used for effect calculations and analysis.
+        """
         return self.X
 
     @property 
     def vector_y(self): # Array for calculated response(s)
+        """
+        Returns the response vector (y).
+
+        This array contains the calculated responses used in the analysis.
+        """
         return self.y
 
     @property 
@@ -404,7 +414,8 @@ class Taguchi:
         selected_factors = factors.strip().split(',')
         results = {}
         # print(mean_data) # check Data
-            
+        
+        
         # Check if two factors was selected
         if len(selected_factors) != 2:
             print("You must select exactly two factors.")
@@ -488,15 +499,14 @@ class Taguchi:
             sum_of_squares = (df['Sum'] ** 2)
             counts = df['Number of experiments']
             ssa[column] = (((sum_of_squares / counts)).sum()) - cf
-        
+ 
         # dof: Degrees of Freedom
         dof = {}
         combined_responses = self.y.sum(axis=1)
         for column in self.X.columns:
             grouped = self.X.groupby(column).apply(lambda group: combined_responses[group.index].sum())
-            dof_value = len(grouped.index) - 1
+            dof_value = len(grouped.index) - 1 
             dof[column] = dof_value
-        
         # MSA: Mean Squares for each factor
         msa = {key: ssa[key] / dof[key] for key in ssa if key in dof}
         
@@ -616,3 +626,282 @@ class Taguchi:
             display(HTML("<div style='display: flex; justify-content: left;'>" + str(round(ri,3)) + " %</div>"))
         else:
             print('Chose correctly which S/N ratio you need to compare')
+
+
+class Analysis: 
+    
+    """
+    Class -> Analysis(X, y)
+    
+    A class designed for evaluating factorial planning effects, offering insights into the contributions 
+    of individual factors and their interactions in experimental designs.
+    
+    Features:
+    ---------
+    - Factorial Effect Analysis: Calculates and visualizes the effects of factors in a factorial design.
+    - Probability Graph: Displays the distribution of effects using a Gaussian-based probability plot.
+    - Percentage Contributions: Quantifies the relative contributions of each effect to the overall variability.
+    - Error Handling: Supports effect error calculation and confidence intervals using the t-Student distribution.
+    
+    Parameters:
+    -----------
+    X  : matrix
+        A matrix representing the factors (effects/interactions) to be analyzed.
+    y  : array-like
+        A vector or matrix containing the response variable(s).
+    yc : array-like, optional (default=None)
+        A vector of central points.
+    type_matrix : str, optional (default=None)
+        Specifies if the design includes interactions to be calculated.
+        - "interaction"
+    effect_error : str, optional (default=None)
+        Specifies the type of effect error to be considered:
+        - "cp" -> "Central Points"
+        - "replica" -> "Replica"
+   
+    Attributes:
+    -----------
+    matrix_x : array-like
+        The selected or calculated factorial design matrix.
+    vector_y : array-like
+        The response vector provided during instantiation, or the mean of replicates.
+    error : float
+        The calculated effect error
+    
+    Methods:
+    --------
+    1. effect_analysis:
+        Generates and displays:
+        - A probability graph to visualize the Gaussian distribution of effects.
+        - A bar plot illustrating the percentage contributions of effects.
+        Saves the generated plots as an image file.
+        Usage: `doe.Analysis(X, y).effect_analysis()`
+    
+    Notes:
+    ------
+    - This class is suitable for factorial designs and provides visual and numerical tools for interpreting experimental results.
+    - Input data should be formatted appropriately:
+      - `X` should represent the coded matrix of factors. Interactions can be calculated within this class.
+      - `y` should be the corresponding response vector or matrix.
+    - The Effect Error and t-Student values are calculated within the class to enable confidence interval estimation, improving the robustness of the analysis.
+    - Graphs generated by this class are inspired by the factorial effect routines in Octave and adapted for Python.
+    
+    Acknowledgments:
+    ----------------
+    - Prof. Dr. Edenir Pereira Filho
+    - B.S. André Simão
+    """
+
+    def __init__(self, x, y, yc=[], type_matrix=None, effect_error=None):
+
+        # Define Matrix X
+        if type_matrix not in ["interaction"]: # Calculate the interactions
+            self.X = x
+        else:
+            matrix = x.copy()
+            factors = matrix.columns # Get the name of factors
+           
+            # Iterate above combinations 
+            for r in range(2, len(factors) + 1):
+                for combination in itertools.combinations(factors, r):
+                    # Name of interaction
+                    name_interaction = ' '.join(combination)
+                    # Multiply factors
+                    matrix[name_interaction] = x[list(combination)].prod(axis=1)
+            self.X = matrix
+
+        self.yc = yc # Central point
+        self.k = x.shape[1] # Number of factors 
+        self.n = x.shape[0] # Number of experiments (include replica and center points)
+        #if yc: # Check if the yc was choosed
+        self.n_yc = len(yc) # Number of center points
+        
+        # Define the response vector `y` and calculate the effect error
+        if effect_error == "cp": 
+            #if yc:
+            self.y = np.mean(np.array(y), axis=1)  # Compute the mean and convert to an array
+            exp_error = np.array(self.yc).std(ddof=1)  # Calculate the experimental error
+            self.eff_error = 2 * exp_error / (self.n_yc * 2**self.k)**0.5  # Calculate the effect error
+            self.t = t.ppf(1 - 0.05 / 2, self.n_yc)  # Compute the t-value (two-tailed, 95% confidence)
+            #else:
+                #raise ValueError("Central points were not provided.")
+        elif effect_error == "replica":
+            #if y.shape[1] > 1:
+            self.y = np.mean(np.array(y), axis=1)  # Compute the mean and convert to an array
+            exp_error = np.array(self.y).std(ddof=1)  # Calculate the experimental error
+            self.eff_error = 2 * exp_error / (self.n * 2**self.k)**0.5  # Calculate the effect error
+            self.t = t.ppf(1 - 0.05 / 2, np.array(y).shape[1])  # Compute the t-value
+            #else:
+            #    raise ValueError("Ensure that the response vector `y` includes replicates.")           
+        else:
+            self.y = y.squeeze().to_numpy()  # Convert to a 1D array if possible
+            self.eff_error = 0  # Default effect error value
+            self.t = 0  # Default t-value
+
+        self.start = [0]
+        self.center = []
+        self.end = []
+        self.gauss = []
+        
+    @property
+    def error(self):
+        """
+        Returns the calculated error effect
+        """
+        return self.eff_error
+        
+    @property 
+    def matrix_x(self): # Matrix with factors and interactions
+        """
+        Returns the design matrix (X) including factors and interactions.
+        
+        This matrix represents the selected experimental design 
+        and is used for effect calculations and analysis.
+        """
+        return self.X
+    
+    @property 
+    def vector_y(self): # Array for calculated response(s)
+        """
+        Returns the response vector (y).
+    
+        This array contains the calculated responses used in the analysis.
+        """
+        return self.y
+
+    @property
+    def __k(self): # Number of factors
+        return self.k
+
+    @property
+    def __n(self): # Number of experiments
+        return self.n
+        
+    @property
+    def __effect(self):  # Returns product values between effects and response
+        return (self.X.T * self.y).T # Multiply the transposed matrix by the response vector, then transpose the result back
+
+    @property
+    def __n_effect(self):  # Returns dimensions of the matrix with effects (coded_value * response)
+        return self.X.shape
+
+    @property
+    def __effect_indices(self):  # Returns list with respective interactions
+        return self.X.T.index
+
+    @property
+    def __generate_start_center_end_gauss(self):  # Returns the values of the Gaussian
+        for i in range(self.__n_effect[1]):
+            self.end.append(self.start[i] + (1 / self.__n_effect[1]))
+            self.start.append(self.end[i])
+            self.center.append((self.start[i] + self.end[i]) / 2)
+            self.gauss.append(norm.ppf(self.center))
+        return self.gauss
+
+    @property
+    def __define_gaussian(self):  # Returns the values of the Gaussian
+        return self.__generate_start_center_end_gauss[self.__n_effect[1] - 1]
+        
+    @property
+    def __calculate_effects(self):  # Returns vector with effects
+        effects = (np.einsum('ij->j', self.__effect)) / (self.__n_effect[0] / 2) # np.einsum -> function that sums columns of a matrix
+        if effects.size == 0 or np.all(np.isnan(effects)):
+            return "Check if the Matrix or Vector was selected correctly"
+        return effects
+
+    @property
+    def __calculate_percentage_effects(self):  # Returns vector with probability
+        return (self.__calculate_effects ** 2 / np.sum(self.__calculate_effects ** 2)) * 100
+
+    @property
+    def __sort_effects_probabilities(self):  # Returns dataframe sorted in ascending order with effect values
+        data = pd.DataFrame({'Effects': self.__calculate_effects}, index=self.__effect_indices)
+        data = data.sort_values('Effects', ascending=True)
+        return data
+
+    @property
+    def __define_ci(self):  # Returns set of Confidence Interval points
+        return np.full(len(self.__define_gaussian), self.eff_error * self.t)
+
+    @property
+    def __probability_effect(self):
+        plt.figure(figsize=(10, 6))
+        # Confidence Interval
+        plt.plot(-1 * self.__define_ci, self.__define_gaussian, color='red') # Left
+        plt.plot(0 * self.__define_ci, self.__define_gaussian, color='blue') # Center
+        plt.plot(self.__define_ci, self.__define_gaussian, color='red')      # Right
+        # Scatter plot
+        plt.scatter(self.__sort_effects_probabilities['Effects'], self.__define_gaussian, s=25, color='darkred')
+        #plt.title('Probability Effects Plot', fontsize=12, fontweight='black', loc='center')
+        plt.ylabel('z')
+        plt.xlabel('Effects')
+        plt.grid(True)
+        # Mark points
+        for i, label in enumerate(self.__sort_effects_probabilities.index):
+            plt.annotate(label, (self.__sort_effects_probabilities['Effects'].values[i],
+                                    self.__define_gaussian[i]),
+                                    textcoords="offset points",  # Use offset points for text positioning
+                                    xytext=(10, 0),  # This adds an offset of 5 points on the y-axis (you can adjust this)
+                                    ha='left',  # Horizontal alignment of the text (centered on the point)
+                                    fontsize=9,  # Optional: set the font size of the annotation
+                                    color='black'  # Optional: set the color of the annotation text
+                           )
+
+        plt.tight_layout()
+        plt.savefig('Probability Effects Plot.png',transparent=True) # Save figure 
+        plt.show()
+
+    @property
+    def __percentage_effect(self):
+        plt.figure(figsize=(10, 6))
+        plt.grid(True)
+        sns.barplot(
+            x='%', 
+            y='Effects', 
+            data=pd.DataFrame({
+                'Effects': self.__effect_indices, 
+                '%': self.__calculate_percentage_effects  
+            }),
+            color='purple',
+            orient='h'
+        )
+        plt.tight_layout()
+        plt.savefig('Percentage Effects Plot.png',transparent=True) # Save figure 
+        plt.show()
+        
+    def effect_analysis(self, exclude_variables=None):
+         """
+        Analyzes the effect of factors and optionally excludes specified variables from the analysis.
+
+        Parameters:
+        exclude_variables (list of str, optional): 
+            A list of variable names to exclude from the analysis. 
+            If provided, the method recalculates the probability and percentage effects 
+            after removing the specified variables.
+    
+        Example:
+        .effect_analysis(exclude_variables=['A', 'B']) 
+            Recalculates the probability and percentage effects excluding variables 'A' and 'B'.
+        """
+        # Check the variables in matrix X
+        if exclude_variables:
+            valid_variables = [var for var in exclude_variables if var in self.X.columns]
+            invalid_variables = [var for var in exclude_variables if var not in self.X.columns]
+            if not valid_variables:
+                raise ValueError("None of the variables to exclude were found in the matrix.")     
+            if invalid_variables:
+                raise ValueError(f"The following variables were not found in the matrix: {', '.join(invalid_variables)}")
+            # Remove the variables for new analysis
+            self.X = self.X.drop(columns=valid_variables)
+            display(HTML("<div style='text-align: left; font-weight: bold; font-size: 12px;'>Factors exluded</div>"))
+            print(valid_variables)
+               
+        # Diplay the Probability Effects Plot
+        display(HTML("<div style='text-align: center; font-weight: bold; font-size: 18px;'>Probability Effects Plot</div>"))
+        self.__probability_effect
+        print('\n')
+        # Diplay the Percentage Effects Plot
+        display(HTML("<div style='text-align: center; font-weight: bold; font-size: 18px;'>Percentage Effects Plot</div>"))
+        self.__percentage_effect
+        
+
