@@ -18,7 +18,6 @@ The `Taguchi` approach provides a robust framework for process optimization and 
 - Representation of effects using Gaussian-based probability plots and percentage contribution charts to reveal the most influential factors.
 - Support for error estimation using t-Student distribution, enhancing the reliability of conclusions.
 - Compatibility with both simple and interaction-inclusive experimental designs.
-The `Taguchi` class offers a streamlined way to perform DOE using the Taguchi method, including support for single and multi-response problems. It provides robust statistical techniques such as **Signal-to-Noise (S/N) Ratios**, **Multi-Response Performance Index (MRPI)**, effect analysis, interaction checks, response prediction, and ANOVA.
 
 ## Features
 ### Key Functionalities
