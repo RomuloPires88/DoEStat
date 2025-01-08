@@ -705,7 +705,7 @@ class Analysis:
             for r in range(2, len(factors) + 1):
                 for combination in itertools.combinations(factors, r):
                     # Name of interaction
-                    name_interaction = ' '.join(combination)
+                    name_interaction = ' x '.join(combination)
                     # Multiply factors
                     matrix[name_interaction] = x[list(combination)].prod(axis=1)
             self.X = matrix
