@@ -1,12 +1,28 @@
-# Taguchi DOE Class
+# DoE Statistc (doestat.py)
 
-A Python implementation of the **Taguchi Method** for Design of Experiments (DOE), providing tools to optimize processes, analyze factor effects, and evaluate quality metrics in robust engineering applications.
+A Python implementation for Design of Experiments (DOE), providing tools to optimize processes, analyze factor effects, and evaluate quality metrics in robust engineering applications.
 
 ## Overview
+Design of Experiments (DOE) is a powerful approach for systematically planning, conducting, analyzing, and interpreting controlled tests to evaluate factor effects on responses. This package offers two distinct yet complementary methods to support experimental design and analysis:
+
+1 - Taguchi Method:
+The `Taguchi` approach provides a robust framework for process optimization and quality improvement. By minimizing the variability in responses and optimizing the mean performance, this method is especially effective in manufacturing, engineering, and other applied sciences. Key features include:
+- Evaluation of quality metrics using **Signal-to-Noise Ratios (S/N)** for "Bigger is Better," "Smaller is Better," and "Nominal is Better" objectives.
+- Handling of multiple responses via techniques like the **Multi-Response Performance Index (MRPI)**.
+- Visualization of factor effects, interaction graphs, and predictive capabilities for optimizing responses.
+- Statistical tools such as Analysis of Variance **(ANOVA)** for variance decomposition and factor impact assessment.
+
+2 - Factorial Design Analysis:
+`Factorial designs` are fundamental for understanding the interactions and contributions of multiple factors in experimental studies. This method focuses on:
+- Calculation and visualization of factorial effects, including main effects and interactions.
+- Representation of effects using Gaussian-based probability plots and percentage contribution charts to reveal the most influential factors.
+- Support for error estimation using t-Student distribution, enhancing the reliability of conclusions.
+- Compatibility with both simple and interaction-inclusive experimental designs.
 The `Taguchi` class offers a streamlined way to perform DOE using the Taguchi method, including support for single and multi-response problems. It provides robust statistical techniques such as **Signal-to-Noise (S/N) Ratios**, **Multi-Response Performance Index (MRPI)**, effect analysis, interaction checks, response prediction, and ANOVA.
 
 ## Features
 ### Key Functionalities
+#### Taguchi Method
 - **Signal-to-Noise (S/N) Ratios**: Evaluate quality characteristics with:
   - "Bigger is better"
   - "Smaller is better"
@@ -19,10 +35,22 @@ The `Taguchi` class offers a streamlined way to perform DOE using the Taguchi me
 - **Prediction**: Predict responses for specific factor combinations.
 - **ANOVA**: Perform Analysis of Variance to understand variance contributions.
 
+#### Factorial Design Analysis
+- Factorial Effect Calculation:
+  - Quantify the contributions of main effects and interactions in factorial designs.
+- Probability Plot Visualization:
+  - Represent effects in Gaussian-based probability plots to identify significant factors.
+- Percentage Contribution Analysis:
+  - Display and quantify the relative influence of each factor or interaction on overall variability.
+- Error Estimation:
+  - Compute effect errors and confidence intervals using the t-Student distribution for robustness.
+- Flexible Design Support:
+  - Analyze coded factorial matrices with or without interactions.
+
 ## Installation
 Ensure you have Python and the necessary dependencies installed. This class requires standard scientific libraries like `numpy` and `matplotlib`.
 ```bash
-pip install numpy matplotlib
+pip install pandas numpy matplotlib scipy seaborn   
 ```
 
 ## Class Reference
