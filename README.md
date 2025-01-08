@@ -35,16 +35,11 @@ The `Taguchi` approach provides a robust framework for process optimization and 
 - **ANOVA**: Perform Analysis of Variance to understand variance contributions.
 
 #### Factorial Design Analysis
-- Factorial Effect Calculation:
-  - Quantify the contributions of main effects and interactions in factorial designs.
-- Probability Plot Visualization:
-  - Represent effects in Gaussian-based probability plots to identify significant factors.
-- Percentage Contribution Analysis:
-  - Display and quantify the relative influence of each factor or interaction on overall variability.
-- Error Estimation:
-  - Compute effect errors and confidence intervals using the t-Student distribution for robustness.
-- Flexible Design Support:
-  - Analyze coded factorial matrices with or without interactions.
+- **Factorial Effect Calculation**: Quantify the contributions of main effects and interactions in factorial designs.
+- **Probability Plot Visualization**: Represent effects in Gaussian-based probability plots to identify significant factors.
+- **Percentage Contribution Analysis**: Display and quantify the relative influence of each factor or interaction on overall variability.
+- **Error Estimation**: Compute effect errors and confidence intervals using the t-Student distribution for robustness.
+- **Flexible Design Support**: Analyze coded factorial matrices with or without interactions.
 
 ## Installation
 Ensure you have Python and the necessary dependencies installed. This class requires standard scientific libraries like `numpy` and `matplotlib`.
