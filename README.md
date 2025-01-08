@@ -179,6 +179,25 @@ doe.Taguchi(X,y).anova(method='Replica')
 - **error** *(float)*: Calculated effect error.
 
 ### Methods:
+`matrix_x`
+- Generates design matrix, including factors and interactions
+- **Usage**:
+  ```python
+   doe.Analysis(X, y).matrix_x
+  ```
+`vector_y`
+- Show the response vector or the mean of replicates
+- **Usage**:
+  ```python
+   doe.Analysis(X, y).vector_y
+  ```
+`error`
+- Show the error effect
+- **Usage**:
+  ```python
+   doe.Analysis(X, y).error
+  ```
+
 `effect_analysis(exclude_variables=None)`
 - Analyzes the effects of factors and optionally excludes specified variables.
 - Generates:
@@ -186,8 +205,9 @@ doe.Taguchi(X,y).anova(method='Replica')
   - Percentage Effects Plot: Displays the contribution of each effect to the overall variability as a horizontal bar plot.
 - **Usage**:
   ```python
-   doe.Analysis(X, y).effect_analysis(exclude_variables=['A', 'B'])
+   doe.Analysis(X, y).effect_analysis()
   ```
+  
 # Notes:
 - This class is ideal for factorial designs and provides tools to interpret experimental results. Input Requirements:
   - X: Matrix of coded factors (interactions can be generated within the class).
