@@ -162,8 +162,53 @@ doe.Taguchi(X,y).anova(method='Replica')
 
 ![imagem](https://github.com/user-attachments/assets/544606c3-1d3b-4259-9a03-4cc5b3af3c66)
 
+### Class: `Analysis`
+#### Parameters:
+- **X** *(matrix)*: Matrix representing the factors (effects/interactions) to be analyzed.
+- **y** *(array-like)*: Vector or matrix containing the response variable(s).
+- **yc** *(array-like, optional)*: Vector of central points (default: None).
+- **type_matrix** *(str, optional)*: Specifies if the design includes interactions to be calculated (default: None):
+  - `"interaction"`
+- **effect_error** *(str, optional)*: Specifies the type of effect error to be considered (default: None):
+  - `"cp"` → Central Points
+  - `"replica"` → Replica
+
+#### Attributes:
+- **matrix_x** *(array-like)*: Experimental design matrix, including factors and interactions.
+- **vector_y** *(array-like)*: Response vector or the mean of replicates.
+- **error** *(float)*: Calculated effect error.
+
+### Methods:
+`effect_analysis(exclude_variables=None)`
+- Analyzes the effects of factors and optionally excludes specified variables.
+- Generates:
+  - Probability Effects Plot: Visualizes the Gaussian distribution of effects, with confidence intervals.
+  - Percentage Effects Plot: Displays the contribution of each effect to the overall variability as a horizontal bar plot.
+- **Usage**:
+  ```python
+   doe.Analysis(X, y).effect_analysis(exclude_variables=['A', 'B'])
+  ```
+# Notes:
+- This class is ideal for factorial designs and provides tools to interpret experimental results. Input Requirements:
+  - X: Matrix of coded factors (interactions can be generated within the class).
+  - y: Response vector or matrix (should be formatted appropriately).
+- Effect Error and Confidence Intervals: Calculated using central points or replicates, leveraging the t-Student distribution for robustness. Graphs:
+  - Automatically saved as image files.
+ 
+## Examples
+```python
+doe.Analysis(X,y,yc,type_matrix='interaction', effect_error='cp').effect_analysis()
+```
+![imagem](https://github.com/user-attachments/assets/ecc1d17a-f2d4-4c92-b2c4-be5a614897bd)
+
+![imagem](https://github.com/user-attachments/assets/7142cbf4-825b-416c-a9d0-311973faaaae)
+
+
 
 ## License
 
 ## Acknowledgments
 This class is inspired by the robust statistical methods of the **Taguchi Method**, widely used in quality engineering to optimize processes and improve product quality.
+
+
+
