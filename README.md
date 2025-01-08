@@ -237,7 +237,7 @@ doe.Taguchi(X,y).anova(method='Replica')
 - Effect Error and Confidence Intervals: Calculated using central points or replicates, leveraging the t-Student distribution for robustness. Graphs:
   - Automatically saved as image files.
  
-## Examples
+## Examples Usage
 ```python
 doe.Analysis(X,y,yc,type_matrix='interaction', effect_error='cp').effect_analysis()
 ```
