@@ -712,44 +712,40 @@ class Analysis:
 
         self.yc = yc # Central point
         self.k = x.shape[1] # Number of factors 
-        self.n = x.shape[0] # Number of experiments (include replica and center points)
+        #self.n = x.shape[0] # Number of experiments (include replica and center points)
         #if yc: # Check if the yc was choosed
         self.n_yc = len(yc) # Number of center points
         
         # Define the response vector `y` and calculate the effect error
         if effect_error == "cp": 
-            #if yc:
-            self.y = np.mean(np.array(y), axis=1)  # Compute the mean and convert to an array
-            exp_error = np.array(self.yc).std(ddof=1)  # Calculate the experimental error
-            self.eff_error = 2 * exp_error / (self.n_yc * 2**self.k)**0.5  # Calculate the effect error
-            self.t = t.ppf(1 - 0.05 / 2, self.n_yc)  # Compute the t-value (two-tailed, 95% confidence)
-            #else:
-                #raise ValueError("Central points were not provided.")
+            if yc is not None and len(yc) > 0:
+                self.y = np.mean(np.array(y), axis=1)  # Compute the mean and convert to an array
+                exp_error = np.array(self.yc).std(ddof=1)  # Calculate the experimental error
+                self.eff_error = 2 * exp_error / (self.n_yc * 2**self.k)**0.5  # Calculate the effect error
+                self.t = t.ppf(1 - 0.05 / 2, self.n_yc)  # Compute the t-value (two-tailed, 95% confidence)
+            else:
+                raise ValueError("Central points were not provided.")
         elif effect_error == "replica":
-            #if y.shape[1] > 1:
-            self.y = np.mean(np.array(y), axis=1)  # Compute the mean and convert to an array
-            exp_error = np.array(self.y).std(ddof=1)  # Calculate the experimental error
-            self.eff_error = 2 * exp_error / (self.n * 2**self.k)**0.5  # Calculate the effect error
-            self.t = t.ppf(1 - 0.05 / 2, np.array(y).shape[1])  # Compute the t-value
-            #else:
-            #    raise ValueError("Ensure that the response vector `y` includes replicates.")           
+            if y.shape[1] > 1:
+                self.y = np.mean(np.array(y), axis=1)  # Compute the mean and convert to an array
+                exp_error = ((y.var(ddof=1, axis=1)).mean())**0.5 # Calculate the experimental error
+                n_y = y.shape[1]
+                self.eff_error = 2 * exp_error / (n_y * 2**self.k)**0.5  # Calculate the effect error
+                self.t = t.ppf(1 - 0.05 / 2, y.shape[0]*(y.shape[1] - 1))  # Compute the t-value
+            else:
+               raise ValueError("Ensure that the response vector `y` includes replicates.")           
         else:
             self.y = y.squeeze().to_numpy()  # Convert to a 1D array if possible
             self.eff_error = 0  # Default effect error value
             self.t = 0  # Default t-value
 
-        self.start = [0]
-        self.center = []
-        self.end = []
-        self.gauss = []
-        
     @property
     def error(self):
         """
         Returns the calculated error effect
         """
         return self.eff_error
-        
+                
     @property 
     def matrix_x(self): # Matrix with factors and interactions
         """
@@ -791,12 +787,16 @@ class Analysis:
 
     @property
     def __generate_start_center_end_gauss(self):  # Returns the values of the Gaussian
+        start = [0]
+        center = []
+        end = []
+        gauss = []
         for i in range(self.__n_effect[1]):
-            self.end.append(self.start[i] + (1 / self.__n_effect[1]))
-            self.start.append(self.end[i])
-            self.center.append((self.start[i] + self.end[i]) / 2)
-            self.gauss.append(norm.ppf(self.center))
-        return self.gauss
+            end.append(start[i] + (1 / self.__n_effect[1]))
+            start.append(end[i])
+            center.append((start[i] + end[i]) / 2)
+            gauss.append(norm.ppf(center))
+        return gauss
 
     @property
     def __define_gaussian(self):  # Returns the values of the Gaussian
@@ -870,7 +870,7 @@ class Analysis:
         plt.show()
         
     def effect_analysis(self, exclude_variables=None):
-         """
+        """
         Analyzes the effect of factors and optionally excludes specified variables from the analysis.
 
         Parameters:
@@ -887,21 +887,28 @@ class Analysis:
         if exclude_variables:
             valid_variables = [var for var in exclude_variables if var in self.X.columns]
             invalid_variables = [var for var in exclude_variables if var not in self.X.columns]
+            
             if not valid_variables:
                 raise ValueError("None of the variables to exclude were found in the matrix.")     
+            
             if invalid_variables:
                 raise ValueError(f"The following variables were not found in the matrix: {', '.join(invalid_variables)}")
+            
             # Remove the variables for new analysis
             self.X = self.X.drop(columns=valid_variables)
-            display(HTML("<div style='text-align: left; font-weight: bold; font-size: 12px;'>Factors exluded</div>"))
+            display(HTML("<div style='text-align: left; font-weight: bold; font-size: 12px;'>Factors excluded</div>"))
             print(valid_variables)
-               
-        # Diplay the Probability Effects Plot
+            print('\n')
+            
+        # Display the variables used    
+        display(HTML("<div style='text-align: left; font-weight: bold; font-size: 12px;'>Factors used</div>"))
+        print(list(self.X.columns))
+        
+        # Display the Probability Effects Plot
         display(HTML("<div style='text-align: center; font-weight: bold; font-size: 18px;'>Probability Effects Plot</div>"))
         self.__probability_effect
         print('\n')
-        # Diplay the Percentage Effects Plot
+        
+        # Display the Percentage Effects Plot
         display(HTML("<div style='text-align: center; font-weight: bold; font-size: 18px;'>Percentage Effects Plot</div>"))
         self.__percentage_effect
-        
-
