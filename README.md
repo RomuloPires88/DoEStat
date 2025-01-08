@@ -49,7 +49,7 @@ pip install numpy matplotlib
 - **vector_y** *(array-like)*: Final response vector/matrix ready for analysis.
 
 ### Methods:
-#### `vector_y()`
+#### `vector_y`
 - Returns the processed response vector/matrix.
 - **Usage**:
   ```python
