@@ -628,6 +628,79 @@ class Taguchi:
             print('Chose correctly which S/N ratio you need to compare')
 
 
+class Auxvalues:
+    """
+    Auxiliar class to calculate:
+    matrix with interactions
+    vector y and possible mean values
+    number of experiments (n)
+    number of factors (k)
+    experimental error
+    effect error
+    t-Student    
+    """
+
+    def amatrix(self, x, type_matrix=None):
+        # Define Matrix X
+        if type_matrix not in ["interaction"]: # Calculate the interactions
+            self.X = x
+            return self.X
+        else:
+            matrix = x.copy()
+            factors = matrix.columns # Get the name of factors
+           
+            # Iterate above combinations 
+            for r in range(2, len(factors) + 1):
+                for combination in itertools.combinations(factors, r):
+                    # Name of interaction
+                    name_interaction = ' × '.join(combination)
+                    # Multiply factors
+                    matrix[name_interaction] = x[list(combination)].prod(axis=1)
+            self.X = matrix
+            return self.X
+
+    def avector(self, x, y, yc=[], effect_error=None):
+        self.k = x.shape[1] # Number of factors 
+        
+        # Define the response vector `y` and calculate the effect error
+        if effect_error == "cp": 
+            if yc is not None and len(yc) > 0:
+                self.yc = yc # Central point
+                self.n_yc = len(self.yc) # Number of center points
+                self.dof_yc = self.n_yc - 1 # Degree of freedom of central points
+                self.y_array = np.array(y) # Keep the original y vector
+                self.y = np.mean(np.array(y), axis=1)  # Compute the mean and convert to an array
+                self.exp_error = np.array(self.yc).std(ddof=1)  # Calculate the experimental error
+                self.eff_error = 2 * self.exp_error / (self.n_yc * 2**self.k)**0.5  # Calculate the effect error
+                self.t = t.ppf(1 - 0.05 / 2, self.dof_yc)  # Compute the t-value (two-tailed, 95% confidence)
+                # self.sspe = np.sum((self.yc.values - np.mean(self.yc.values))**2) # Compute the Square Sum of Pure Error
+                # self.dof_sspe = self.dof_yc # Dof SSPE = Dof Central points
+                return self.y_array, self.y, self.exp_error, self.eff_error, self.t
+            else:
+                raise ValueError("Central points were not provided.")
+        elif effect_error == "replica":
+            if y.shape[1] > 1:
+                self.y_array = np.array(y) # Keep the original y vector
+                self.y = np.mean(np.array(y), axis=1)  # Compute the mean and convert to an array
+                self.dof_y = y.shape[0]*(y.shape[1] - 1) # Degree of freedom of replicates
+                self.exp_error = ((y.var(ddof=1, axis=1)).mean())**0.5 # Calculate the experimental error
+                self.n_y = y.shape[1] # Number of replicates by experiment
+                self.eff_error = 2 * self.exp_error / (self.n_y * 2**self.k)**0.5  # Calculate the effect error
+                self.t = t.ppf(1 - 0.05 / 2, self.dof_y)  # Compute the t-value
+                return self.y_array, self.y, self.exp_error, self.eff_error, self.t
+            else:
+               raise ValueError("Ensure that the response vector `y` includes replicates.")           
+        else:
+            self.y_array = np.array(y) # Keep the original y vector
+            self.y = y.squeeze().to_numpy()  # Convert to a 1D array if possible
+            self.exp_error = 0 # Default experimental error value
+            self.eff_error = 0  # Default effect error value
+            self.t = 0  # Default t-value
+            self.sspe = 2 # Compute the Square Sum of Pure Error
+            self.dof_sspe = 22 # Degree of freedom by default
+            return self.y_array, self.y, self.exp_error, self.eff_error, self.t
+        
+        
 class Analysis: 
     
     """
@@ -693,52 +766,12 @@ class Analysis:
     """
 
     def __init__(self, x, y, yc=[], type_matrix=None, effect_error=None):
-
-        # Define Matrix X
-        if type_matrix not in ["interaction"]: # Calculate the interactions
-            self.X = x
-        else:
-            matrix = x.copy()
-            factors = matrix.columns # Get the name of factors
-           
-            # Iterate above combinations 
-            for r in range(2, len(factors) + 1):
-                for combination in itertools.combinations(factors, r):
-                    # Name of interaction
-                    name_interaction = ' x '.join(combination)
-                    # Multiply factors
-                    matrix[name_interaction] = x[list(combination)].prod(axis=1)
-            self.X = matrix
-
-        self.yc = yc # Central point
-        self.k = x.shape[1] # Number of factors 
-        #self.n = x.shape[0] # Number of experiments (include replica and center points)
-        #if yc: # Check if the yc was choosed
-        self.n_yc = len(yc) # Number of center points
+        self.aux = Auxvalues()
+        self.type_matrix = type_matrix
+        self.effect_error = effect_error
+        self.X = self.aux.amatrix(x, type_matrix=self.type_matrix)
+        self.y_array, self.y, self.exp_error, self.eff_error, self.t = self.aux.avector(x, y, yc, effect_error=self.effect_error)
         
-        # Define the response vector `y` and calculate the effect error
-        if effect_error == "cp": 
-            if yc is not None and len(yc) > 0:
-                self.y = np.mean(np.array(y), axis=1)  # Compute the mean and convert to an array
-                exp_error = np.array(self.yc).std(ddof=1)  # Calculate the experimental error
-                self.eff_error = 2 * exp_error / (self.n_yc * 2**self.k)**0.5  # Calculate the effect error
-                self.t = t.ppf(1 - 0.05 / 2, self.n_yc)  # Compute the t-value (two-tailed, 95% confidence)
-            else:
-                raise ValueError("Central points were not provided.")
-        elif effect_error == "replica":
-            if y.shape[1] > 1:
-                self.y = np.mean(np.array(y), axis=1)  # Compute the mean and convert to an array
-                exp_error = ((y.var(ddof=1, axis=1)).mean())**0.5 # Calculate the experimental error
-                n_y = y.shape[1]
-                self.eff_error = 2 * exp_error / (n_y * 2**self.k)**0.5  # Calculate the effect error
-                self.t = t.ppf(1 - 0.05 / 2, y.shape[0]*(y.shape[1] - 1))  # Compute the t-value
-            else:
-               raise ValueError("Ensure that the response vector `y` includes replicates.")           
-        else:
-            self.y = y.squeeze().to_numpy()  # Convert to a 1D array if possible
-            self.eff_error = 0  # Default effect error value
-            self.t = 0  # Default t-value
-
     @property
     def error(self):
         """
@@ -765,14 +798,6 @@ class Analysis:
         """
         return self.y
 
-    @property
-    def __k(self): # Number of factors
-        return self.k
-
-    @property
-    def __n(self): # Number of experiments
-        return self.n
-        
     @property
     def __effect(self):  # Returns product values between effects and response
         return (self.X.T * self.y).T # Multiply the transposed matrix by the response vector, then transpose the result back
@@ -912,3 +937,404 @@ class Analysis:
         # Display the Percentage Effects Plot
         display(HTML("<div style='text-align: center; font-weight: bold; font-size: 18px;'>Percentage Effects Plot</div>"))
         self.__percentage_effect
+
+class Regression:
+    """
+    Class -> Regression(X, y)
+    
+    A class designed to perform regression analysis, build ANOVA tables, calculate regression coefficients, and create response surface models.
+    
+    Features:
+    ---------
+    - ANOVA: Calculates the Analysis of Variance and generates a DataFrame summarizing the results.
+    - Regression Plot: Displays the regression plot using the provided matrix data.
+    - Residual Plot: Shows the residual plot for the experimental data.
+    - Histogram Plot: Displays a histogram plot for the distribution of residuals.
+    - Coefficient error plot: Displays the confidence intervals for the calculated regression coefficients, providing a visual representation of their variability and reliability.
+    - Response Surface Plot: Displays the response surface for the selected variables along with the corresponding contour plot, providing a visual understanding of the relationship between factors and the response.
+    
+    Parameters:
+    -----------
+    X  : matrix
+        A matrix representing the factors (effects/interactions) to be analyzed.
+    y  : array-like
+        A vector or matrix containing the response variable(s).
+    yc : array-like, optional (default=None)
+        A vector of central points.
+    type_matrix : str, optional (default=None)
+        Specifies if the design includes interactions to be calculated.
+        - "interaction"
+    effect_error : str, optional (default=None)
+        Specifies the type of effect error to be considered:
+        - "cp" -> "Central Points"
+        - "replica" -> "Replica"
+    selected_factors: list[str], optional (default=None)
+        Specifies the factors (effects/interactions) to be analyzed
+    regression: str, optional (default = 'quadratic')
+        Specifies the type of regression:
+        - "quadratic" -> Includes quadratic and interaction coefficients.
+        - "linear" -> Includes only linear coefficients.
+        - "interaction_only" ->  Includes linear coefficients and interactions only.
+   
+    Attributes:
+    -----------
+    Xb : array-like
+        Reorganized array for the analyzed factors.
+    
+    Methods:
+    --------
+    1. anova:
+        Generates and displays:
+        - A DataFrame summarizing the analysis of variance.
+        - Includes results for the F-test, p-value, and evaluation of null and alternative hypotheses.
+        Usage: `doe.Regression(X, y).effect_analysis()`
+    2. regression_plot:
+        Generates and displays:
+        - The regression plot using the provided matrix data.
+        Usage: `doe.Regression(X, y).regression_plot`
+    3. residual_plot:
+        Generates and displays:
+        - The residual plot for the experimental data.
+        Usage: `doe.Regression(X, y).residual_plot`
+    4. histogram_plot:
+        Generates and displays:
+        - The histogram plot for the distribution of residuals.
+        Usage: `doe.Regression(X, y).histogram_plot`   
+    5. coefficient_error_plot:
+        Generates and displays:
+        - The confidence intervals for the calculated regression coefficients.
+        Usage: `doe.Regression(X, y).coefficient_error_plot` 
+    6. analysis:
+        Displays:
+        - Regression plot, Residual plot, Histogram plot, Coefficiente error plot.
+        Usage: `doe.Regression(X, y).analysis` 
+    7.surface:
+        Generates and displays:
+        - The response surface model and corresponding contour plot.  
+        - A 3D surface model for better visualization.
+        Usage: `doe.Regression(X, y).surface()`      
+
+    Notes:
+    ------
+    - This class is suitable for regression calculations in factorial designs and provides visual and numerical tools for interpreting experimental results.
+    - Input data should be formatted appropriately:
+      - `X` should represent the coded matrix of factors. Interactions can be calculated within this class.
+      - `y` should be the corresponding response vector or matrix.
+    """
+    
+    def __init__(self, x, y, yc=[], type_matrix='no_interaction', effect_error=None,selected_factors=None,regression='quadratic'):
+        self.aux = Auxvalues()
+        self.type_matrix = type_matrix
+        self.effect_error = effect_error
+        self.regression = regression
+        self.X = self.aux.amatrix(x, type_matrix=self.type_matrix)
+        self.yc = yc
+        self.selected_factors = selected_factors or self.X.columns.tolist()
+        self.Xb = self.create_Xb
+        self.y_array, self.y,self.exp_error,_,_ = self.aux.avector(x, y, yc, effect_error=self.effect_error)
+        
+
+    @property
+    def create_Xb(self):
+        if len(self.selected_factors) > 2 :
+            raise ValueError("More than two factors can not be calculated by regression.")
+        else:
+            if self.regression == 'quadratic':
+                Xb = self.X[self.selected_factors]
+                Xb['{}²'.format(self.selected_factors[0])] = Xb[self.selected_factors[0]] ** 2
+                if len(self.selected_factors) > 1:
+                    Xb['{}²'.format(self.selected_factors[1])] = Xb[self.selected_factors[1]] ** 2
+                    Xb['{} × {}'.format(self.selected_factors[0], self.selected_factors[1])] = Xb[self.selected_factors[0]] * Xb[self.selected_factors[1]]
+                Xb.insert(0, 'Intercept', 1)        
+                return Xb
+            elif self.regression == 'interaction_only':
+                Xb = self.X[self.selected_factors]
+                if len(self.selected_factors) > 1:
+                    Xb['{} × {}'.format(self.selected_factors[0], self.selected_factors[1])] = Xb[self.selected_factors[0]] * Xb[self.selected_factors[1]]
+                Xb.insert(0, 'Intercept', 1) 
+                return Xb
+            elif self.regression =='linear':
+                Xb = self.X[self.selected_factors]
+                Xb.insert(0, 'Intercept', 1) 
+                return Xb
+
+    # @property
+    # def cov_matrix(self): # Covariance Matrix of the Coefficients
+    #     return np.linalg.inv(np.matmul(self.Xb.values.T,self.Xb.values)).round(3) #  inv(X'*X)
+
+    @property
+    def __var_coeffs(self): 
+        # Matrixes calculations
+        self.XbTXinv = np.linalg.inv(np.matmul(self.Xb.T,self.Xb)) # inv(X'*X)
+        self.XbTy = np.matmul(self.Xb.T, self.y) # (X'*Y)
+        self.b = np.matmul(self.XbTXinv, self.XbTy) # b = inv(X'*X)*(X'*Y)
+
+        # Prediction of the model
+        self.y_pred = np.matmul(self.Xb,self.b) # y predict
+        self.y_resid = np.array(self.y_pred)[:, np.newaxis] - np.array(self.y_array) # y residual
+
+        # ANOVA variables
+        self.rss = np.sum(self.y_resid**2) # Residual Sum of Square
+        self.dof_rss = np.array(self.y_array).size - self.Xb.shape[1] # Degree of freedom of RSS
+        self.ess = np.sum(((np.array(self.y_pred) - np.mean(self.y_array))**2)*np.array(self.y_array).shape[1]) # Regression Sum of Square or Explained Sum of Square
+        self.dof_ess = self.Xb.shape[1] - 1 # Degree of freedom of ESS
+        self.tss = np.sum((np.array(self.y_array) - np.mean(self.y_array))**2) # Total Sum of Square
+        self.dof_tss = self.dof_ess + self.dof_rss # Degree of freedom of TSS
+        if self.effect_error == 'cp':
+            self.sspe = np.sum((np.array(self.yc) - np.mean(self.yc))**2)
+            self.dof_sspe = len(self.yc) - 1
+        else:
+            self.sspe = np.sum((np.array(self.y_array) - np.array(self.y)[:, np.newaxis])**2) # Sum of Square of Pure Error
+            self.dof_sspe = (np.array(self.y_array).shape[1] - 1) * np.array(self.y_array).shape[0] # Degree of freedom of SSPE
+        self.lof = self.rss - self.sspe # Lack of Fit
+        self.dof_lof = self.dof_rss - self.dof_sspe # Degree of freedom of LOF
+        self.r2 = self.ess/self.tss #  Coefficient of Determination R² (R-squared)
+        self.r2max = (self.tss-self.sspe)/self.tss # R² max
+        self.r = self.r2**0.5 # R
+        self.n = np.array(self.y_array).size # Number of experiments
+        self.k = self.Xb.shape[1] - 1 # Number of factors
+        self.r_ajust = 1-(((self.n - 1)/(self.n - self.k -1))*(1 - self.r2)) # R² ajust
+        self.mse_exp = self.rss/self.dof_rss # Mean Square Error (by residual) Experimental
+        self.msr_exp = self.ess/self.dof_ess # Mean Square Regression Experimental
+        self.mst_exp = self.tss/self.dof_tss # Mean Total Square Experimental
+        self.mse_pe = self.lof/self.dof_lof # Mean Square Error (by residual) Pure Error
+        self.msr_pe = self.sspe/self.dof_sspe # Mean Square Regression Pure Error  
+        self.ftest_exp = self.msr_exp/self.mse_exp # F-test for Experimental Data
+        self.ftab_exp = f.ppf(0.95, self.dof_ess, self.dof_rss) # F-tabulated for Experimental Data
+        self.fratio_exp = self.ftest_exp/self.ftab_exp # F ratio for Experimental Data
+        self.pvalue_exp = f.sf(self.ftest_exp, self.dof_ess, self.dof_rss) # p-value for Experimental Data
+        self.ftest_pe = self.mse_pe/self.msr_pe # F-test for Pure Error Data
+        self.ftab_pe = f.ppf(0.95, self.dof_lof, self.dof_sspe) # F-tabulated for Pure Error Data
+        self.fratio_pe = self.ftest_pe/self.ftab_pe # F ratio for Pure Error Data
+        self.pvalue_pe = f.sf(self.ftest_pe, self.dof_lof, self.dof_sspe) # p-value for Pure Error Data
+        
+        # Calculation for regression and residual
+        if self.pvalue_exp < 0.05 and self.pvalue_pe > 0.05:
+            self.t = t.ppf(1 - 0.05/2, self.dof_rss) # Test t with 95% Acrescentar o t para quando há falta de ajuste
+        elif self.pvalue_exp > 0.05 and self.pvalue_pe < 0.05:
+            self.t = t.ppf(1 - 0.05/2, self.dof_sspe)
+        else:
+            raise ValueError("The model cannot be adjusted as it failed both p-value tests for significance.")
+        self.variance =  np.diag(self.XbTXinv/len(self.y_array)) * self.mse_exp # NOTE! the matrix was divide by number of replica
+        self.error = self.variance**0.5
+        self.ci = self.error * self.t # Confidence interval
+         
+        return self.__dict__
+    
+    @property
+    def anova(self): # ANOVA table
+        data = self.__var_coeffs
+        # DataFrame ANOVA
+        df = pd.DataFrame({
+            "Source": ["Factors", "Residual", "Total", "Pure Error","Lack o Fit"],
+            "Sum of Squares": [round(data["ess"],3), round(data["rss"],3), round(data["tss"],3), round(data["sspe"],3),
+                               round(data["lof"],3)],
+            "Df": [data["dof_ess"], data["dof_rss"], data["dof_tss"],data["dof_sspe"] ,data["dof_lof"]],
+            "Mean fo Squares": [round(data["msr_exp"],3), round(data["mse_exp"],3), round(data["mst_exp"],3),
+                                round(data["msr_pe"],3),round(data["mse_pe"],3)],
+            "F-Test": [round(data["ftest_exp"],3),"","",round(data["ftest_pe"],3),""],
+            "F-Tabuled": [f'F(0.05;{data["dof_ess"]};{data["dof_rss"]}) = {round(data["ftab_exp"], 3)}',
+                          "","", 
+                          f'F(0.05;{data["dof_lof"]};{data["dof_sspe"]}) = {round(data["ftab_pe"], 3)}',
+                          ""],
+            "F-Ratio": [round(data["fratio_exp"],3),"","", round(data["fratio_pe"],3),""],
+            "p-Value": [f"{data['pvalue_exp']:.4e}","", "", f"{data['pvalue_pe']:.4e}", "" ],
+            "Evaluation": ["Reject H₀ and accept H₁" if data['pvalue_exp'] < 0.05 else "Accept H₀ and reject H₁",
+                           "", "",
+                           "Reject H₀ and accept H₁" if data['pvalue_pe'] < 0.05 else "Accept H₀ and reject H₁",
+                           ""]
+        })
+        
+        return df
+
+    @property
+    def regression_plot(self):
+        data = self.__var_coeffs
+        plt.figure(figsize=(10, 6))
+        plt.scatter(self.y, data["y_pred"], color='blue', s=15)
+        plt.plot([min(self.y), max(self.y)], [min(self.y), max(self.y)], color='red', linewidth=1, linestyle='--')
+        plt.xlabel('Experimental')
+        plt.ylabel('Predict')
+        # plt.title('Regression Plot')
+        info_text = f"R² = {round(data['r2'],4)}\n"
+        info_text += f"R²ₘₐₓ = {round(data['r2max'],4)}\n"
+        info_text += f"R²ₐₗᵤₛₜ = {round(data['r_ajust'],4)}"
+        plt.text(0.05, 0.95, info_text, transform=plt.gca().transAxes, fontsize=10,
+                 verticalalignment='top', horizontalalignment='left',
+                 bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=1'))
+        plt.tight_layout()
+        plt.grid(True)
+        plt.savefig('Regression Plot.png',transparent=True)
+        plt.show()
+
+    @property
+    def residual_plot(self):
+        data = self.__var_coeffs
+        plt.figure(figsize=(10, 6))
+        plt.scatter(data["y_pred"], np.mean(data["y_resid"], axis = 1), color='blue', s=15)
+        plt.axhline(0,color='red', linewidth=1, linestyle='--')
+        plt.xlabel('Predict')
+        plt.ylabel('Residual')
+        # plt.title('Residual Plot')
+        plt.tight_layout()
+        plt.grid(True)
+        plt.show()
+
+    @property
+    def histogram_plot(self):
+        data = self.__var_coeffs
+        plt.figure(figsize=(10, 6))
+        plt.hist(np.mean(data["y_resid"],axis=1), color ='indigo',bins='fd',edgecolor='black')
+        plt.ylabel('Density')
+        plt.xlabel('Residual')
+        # plt.title('Histogram of the Residual')
+        plt.tight_layout()
+        plt.show()
+
+    @property
+    def coefficient_error_plot(self):
+        data = self.__var_coeffs
+        plt.figure(figsize=(10, 6))
+        plt.errorbar(self.Xb.columns,data["b"] ,data["ci"], fmt='o', linewidth=2, capsize=6, color='blue')
+        plt.axhline(0,color='red', linewidth=1, linestyle='--')
+        plt.ylabel('Coefficient Values')
+        plt.xlabel('Coefficient')
+        # plt.title('Regression of Coefficients',fontweight='black')
+        plt.tight_layout()
+        plt.grid()
+        plt.show()
+        
+    @property
+    def __ftest_plot(self): # Maybe this is not important!!!!
+        data = self.__var_coeffs
+        fig = plt.figure(constrained_layout=True,figsize=(10,8))      
+        subfigs = fig.subfigures(2,2, wspace=0.07, width_ratios=[1,1])
+        #F test Experimantal data
+        axs2 = subfigs[0,0].subplots(1, 3)
+        axs2[0].bar('MSR/MSE',data["ftest_exp"],color='navy' ,)
+        axs2[0].set_title('F-Test \n (Regression)',fontweight='black')
+        axs2[1].bar(f'F(0.05;{data["dof_ess"]};{data["dof_rss"]})',data["ftab_exp"],color='navy')
+        axs2[1].set_title('F-tabulated',fontweight='black')
+        axs2[2].bar('F-Test/ F-tabulated',data["fratio_exp"], color= 'navy')
+        axs2[2].set_title('Ratio',fontweight='black',fontsize=12,y=1.031)
+        axs2[2].axhline(1,color='w')
+                
+        #F test Pure error data
+        axs1 = subfigs[0,1].subplots(1, 3)
+        axs1[0].bar('MSLoF/MSPE',data["ftest_pe"],color='darkred' ,)
+        axs1[0].set_title('F-Test \n (Lack of Fit)',fontweight='black')
+        axs1[1].bar(f'F(0.05;{data["dof_lof"]};{data["dof_sspe"]})',data["ftab_pe"],color='darkred')
+        axs1[1].set_title('F-tabulated',fontweight='black')
+        axs1[2].bar('F-Test/ F-tabulated',data["fratio_pe"], color= 'darkred')
+        axs1[2].set_title('Ratio',fontweight='black',fontsize=12,y=1.031)
+        axs1[2].axhline(1,color='black')
+
+    @property
+    def analysis(self):
+        display(HTML("<div style='text-align: center; font-weight: bold; font-size: 18px;'>Regression Plot</div>")) 
+        self.regression_plot
+        print('\n')
+        display(HTML("<div style='text-align: center; font-weight: bold; font-size: 18px;'>Residual Plot</div>")) 
+        self.residual_plot
+        print('\n')
+        display(HTML("<div style='text-align: center; font-weight: bold; font-size: 18px;'>Histogram of the Residual</div>")) 
+        self.histogram_plot
+        print('\n')
+        display(HTML("<div style='text-align: center; font-weight: bold; font-size: 18px;'>Regression of Coefficients</div>")) 
+        self.coefficient_error_plot
+        # self.__ftest_plot
+
+    def surface(self, v1=[], v2=[], plot3D = False):
+        """
+        Generates and displays the Response Surface Model.
+        
+        Parameters:
+        -----------
+        v1 : list, optional (default=[])
+            A list containing the real minimum and maximum values for the first selected variable.  
+            Example: `[min_value, max_value]`.
+        v2 : list, optional (default=[])
+            A list containing the real minimum and maximum values for the second selected variable.  
+            Example: `[min_value, max_value]`.
+        plot3D : bool, optional (default=False)
+            If `True`, generates an interactive 3D Response Surface plot.  
+            If `False`, displays the Response Surface and Contour plot.
+    
+        Returns:
+        --------
+        - A graphical representation of the Response Surface.
+    
+        Example:
+        --------
+        Generate the surface and contour plot:
+        regression.surface(v1=[35, 45], v2=[58, 78])
+    
+        Generate an interactive 3D surface plot:
+        regression.surface(v1=[35, 45], v2=[58, 78], plot3D=True)
+    
+        """
+        data = self.__var_coeffs
+        b0,b1,b2,b11,b22,b12 = data["b"]
+        
+        cod_X = {}
+        for col in self.selected_factors:
+            min_value = self.X[col].min()
+            max_value = self.X[col].max()
+            cod_X[col] = {"min": min_value, "max": max_value}
+        array_cod1 = np.linspace(cod_X[self.selected_factors[0]]['min'] ,cod_X[self.selected_factors[0]]['max'] ,num=101)
+        array_cod2 = np.linspace(cod_X[self.selected_factors[1]]['min'] ,cod_X[self.selected_factors[1]]['max'] ,num=101)
+        x,y = np.meshgrid(array_cod1,array_cod2)
+        self.z = (b0 + b1*x + b2*y + b11*x**2 + b22*y**2 + b12*x*y).round(4)
+        
+        
+        if len(v1) == 2 and len(v2) == 2:
+            array_real1 = np.linspace(v1[0],v1[1], num=101)
+            array_real2 = np.linspace(v2[0],v2[1], num=101)
+            x,y = np.meshgrid(array_real1,array_real2)
+        elif (len(v1) == 1 or len(v2) == 1) or (len(v1) > 2 or len(v2) > 2):
+            raise ValueError('It is necessary to provide exactly two values for both variable 1 and variable 2.')
+
+        if plot3D == False:
+            z = self.z
+            # Surface
+            fig = plt.figure(figsize=(12,12))
+            ax1 = fig.add_subplot(1,2,1, projection='3d')
+            ax1.plot_surface(x, y, z, rstride=1, cstride=1,cmap='viridis', edgecolor='none')
+            # ax.set_title('Model Surface', fontweight='black')
+            ax1.set_xlabel(self.selected_factors[0], fontsize = 12)
+            ax1.set_ylabel(self.selected_factors[1], fontsize = 12)
+            ax1.set_zlabel('Z', fontsize=12)
+    
+            # Countor
+            ax2 = fig.add_subplot(1,2,2)
+            contours = ax2.contour(x, y, z, 3,colors='black', levels=6)
+            ax2.clabel(contours, inline=True, fontsize=12)
+            ax2.set_xlabel(self.selected_factors[0], fontsize = 12)
+            ax2.set_ylabel(self.selected_factors[1], fontsize = 12)
+            # ax2.scatter(x.max(), y.max(), color='darkred',marker=(5, 1),s=100)
+            max_index = np.unravel_index(np.argmax(z, axis=None), z.shape)
+            ax2.annotate(r'$z_{max}= %.2f$' % z.max().round(0), 
+                         (x[max_index], y[max_index]),color='k')
+            plt.imshow(z, extent=[x.min(), x.max(), y.min(), y.max()],  cmap='viridis', alpha=1)
+            plt.colorbar(aspect=6, pad=.15)
+    
+            display(HTML("<div style='text-align: center; font-weight: bold; font-size: 18px;'>Response Surface and Contour Plot</div>")) 
+            plt.tight_layout(w_pad=5)
+            plt.show()
+
+        else:
+            z = self.z
+            surface = go.Surface(x=x,y=y,z=z,colorscale='Viridis')
+            layout = go.Layout(
+                scene = dict(
+                    xaxis = dict(title = self.selected_factors[0]),
+                    yaxis = dict(title = self.selected_factors[1]),
+                    zaxis = dict(title = 'Z')
+            ),
+            width=1000,
+            height=600,
+        )
+            fig = go.Figure(data = [surface],layout = layout)
+            display(HTML("<div style='text-align: center; font-weight: bold; font-size: 18px;'>Response Surface Plot</div>")) 
+            # iplot(fig)
+            fig.show()
