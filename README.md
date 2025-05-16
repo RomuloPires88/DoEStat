@@ -243,8 +243,7 @@ doe.Analysis(X,y,yc,type_matrix='interaction', effect_error='cp').effect_analysi
 ```
 ![imagem](https://github.com/user-attachments/assets/ecc1d17a-f2d4-4c92-b2c4-be5a614897bd)
 
-![imagem](https://github.com/user-attachments/assets/7142cbf4-825b-416c-a9d0-311973faaaae)
-
+![imagem](https://github.com/user-attachments/assets/2eca9cf8-341f-47a2-ab0e-fee4bf973b25)
 
 
 ## License
