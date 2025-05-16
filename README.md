@@ -40,11 +40,17 @@ The `Taguchi` approach provides a robust framework for process optimization and 
 - **Percentage Contribution Analysis**: Display and quantify the relative influence of each factor or interaction on overall variability.
 - **Error Estimation**: Compute effect errors and confidence intervals using the t-Student distribution for robustness.
 - **Flexible Design Support**: Analyze coded factorial matrices with or without interactions.
+- **Regression Plot Visualization**: Displays the regression plot using the provided matrix data.
+- **Residual Plot Visualization**: Shows the residual plot for the experimental data.
+- **Histogram Plot Visualization**: Displays a histogram plot for the distribution of residuals.
+- **Coefficient Error Plot Visualization**: Displays the confidence intervals for the calculated regression coefficients, providing a visual representation of their variability and reliability.
+- **Response Surface**: Generate s surface response and contour plot with coded data or real values.
+- **Model Equation**: Displays the model equation.
 
 ## Installation
 Ensure you have Python and the necessary dependencies installed. This class requires standard scientific libraries like `numpy` and `matplotlib`.
 ```bash
-pip install pandas numpy matplotlib scipy seaborn   
+pip install pandas numpy matplotlib.pyplot plotly.graph_objs scipy.stats seaborn IPython.display sys itertools re
 ```
 
 ## Class Reference
@@ -184,6 +190,9 @@ doe.Taguchi(X,y).anova(method='Replica')
 
 ![imagem](https://github.com/user-attachments/assets/544606c3-1d3b-4259-9a03-4cc5b3af3c66)
 
+### Class: `Auxvalues`
+`A auxiliar class that is used by others Classes`
+
 ### Class: `Analysis`
 #### Parameters:
 - **X** *(matrix)*: Matrix representing the factors (effects/interactions) to be analyzed.
@@ -245,6 +254,107 @@ doe.Analysis(X,y,yc,type_matrix='interaction', effect_error='cp').effect_analysi
 
 ![imagem](https://github.com/user-attachments/assets/2eca9cf8-341f-47a2-ab0e-fee4bf973b25)
 
+### Class: `Regression`
+#### Parameters:
+- **X** *(matrix)*: Matrix representing the factors (effects/interactions) to be analyzed.
+- **y** *(array-like)*: Vector or matrix containing the response variable(s).
+- **yc** *(array-like, optional)*: Vector of central points (default: None).
+- **type_matrix** *(str, optional)*: Specifies if the design includes interactions to be calculated (default: None):
+  - `"interaction"`
+- **effect_error** *(str, optional)*: Specifies the type of effect error to be considered (default: None):
+  - `"cp"` → Central Points
+  - `"replica"` → Replica
+- **selected_factors** *(str, optional (default=None))*: Specifies the factors (effects/interactions) to be analyzed
+- **regression** *(str, optional (default = 'quadratic'))*: Specifies the type of regression:
+  - `"quadratic"` → Includes quadratic coefficients and, if the type_matrix='interaction', interaction coefficients.
+  - `"linear"` → Includes linear coefficients and, if the type_matrix='interaction', interaction coefficients.
+
+#### Attributes:
+- **Xb** *(array-like)*: Reorganized array for the analyzed factors.
+
+- Generates design matrix, including factors and interactions
+- **Usage**:
+  ```python
+   doe.Analysis(X, y).matrix_x
+  ```
+
+#### Methods:
+`anova`
+- Generates and displays a DataFrame summarizing the analysis of variance, includes results for the F-test, p-value, and evaluation of null and alternative hypotheses.
+- **Usage**:
+  ```python
+  `doe.Regression(X, y).effect_analysis()`
+  ```
+
+`regression_plot`
+- Generates and displays the regression plot using the provided matrix data.
+- **Usage**:
+  ```python
+  `doe.Regression(X, y).regression_plot`
+  ```
+`residual_plot`
+- Generates and displays the residual plot for the experimental data.
+- **Usage**:
+  ```python
+  `doe.Regression(X, y).residual_plot`
+  ```
+
+`histogram_plot`
+- Generates and displays the histogram plot for the distribution of residuals.
+- **Usage**:
+  ```python
+  `doe.Regression(X, y).histogram_plot`
+  ```
+
+`coefficient_error_plot`
+- Generates and displays the confidence intervals for the calculated regression coefficients.
+- **Usage**:
+  ```python
+  `doe.Regression(X, y).coefficient_error_plot`
+  ```
+  
+`analysis`
+- Displays Regression plot, Residual plot, Histogram plot, Coefficient error plot.
+- **Usage**:
+  ```python
+  `doe.Regression(X, y).analysis`
+  ```
+
+`coefficient`
+- Generates and displays the table with the model coefficients and if their are significants.
+- **Usage**:
+  ```python
+  `doe.Regression(X, y).coefficient`
+  ```
+
+`surface`
+- Generates and displays the response surface model and corresponding contour plot or a 3D surface model for better visualization.
+- **Usage**:
+  ```python
+  `doe.Regression(X, y).surface()`
+  ```
+
+`show_equation`
+- Displays the model equation.
+- **Usage**:
+  ```python
+  `doe.Regression(X, y).show_equation()`
+  ```
+
+`find_xy`
+- Finds possible (x, y) values that satisfy the response surface equation for a given z.
+- **Usage**:
+  ```python
+  `doe.Regression(X, y).find_xy()`
+  ```
+
+    Notes:
+    ------
+    - This class is suitable for regression calculations in factorial designs and provides visual and numerical tools for interpreting experimental results.
+    - Input data should be formatted appropriately:
+      - `X` should represent the coded matrix of factors. Interactions can be calculated within this class.
+      - `y` should be the corresponding response vector or matrix.
+    """
 
 ## License
 
