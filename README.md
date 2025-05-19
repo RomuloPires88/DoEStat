@@ -243,10 +243,12 @@ doe.Taguchi(X,y).anova(method='Replica')
 - This class is ideal for factorial designs and provides tools to interpret experimental results. Input Requirements:
   - X: Matrix of coded factors (interactions can be generated within the class).
   - y: Response vector or matrix (should be formatted appropriately).
-- Effect Error and Confidence Intervals: Calculated using central points or replicates, leveraging the t-Student distribution for robustness. Graphs:
+- Effect Error and Confidence Intervals: Calculated using central points or replicates, leveraging the t-Student distribution for robustness.
+- Graphs:
   - Automatically saved as image files.
- 
+
 ## Examples Usage
+Here is an example to demonstrate the functionality of the `Analysis` class:
 ```python
 doe.Analysis(X,y,yc,type_matrix='interaction', effect_error='cp').effect_analysis()
 ```
@@ -348,10 +350,32 @@ doe.Analysis(X,y,yc,type_matrix='interaction', effect_error='cp').effect_analysi
   `doe.Regression(X, y).find_xy()`
   ```
 
+## Examples Usage
+Here is an example to demonstrate the functionality of the `Regression` class:
+```python
+doe.Regression(X,y,yc, type_matrix='interaction', order=2, effect_error='cp').analysis
+```
+![imagem](https://github.com/user-attachments/assets/6ac5f2bf-b322-4121-92f0-81fa966991aa)
+
+![imagem](https://github.com/user-attachments/assets/6b5c3238-e40a-4fd7-b0e6-a5e7c049f287)
+
+![imagem](https://github.com/user-attachments/assets/9f6e0cff-5cd2-4bc0-876f-0b0f6c66b325)
+
+![imagem](https://github.com/user-attachments/assets/7e3209ad-b9aa-4852-af70-bc0654d58a57)
+
+```python
+v1=[70,85]
+v2=[6,13.83]
+doe.Regression(X,y,yc, type_matrix='interaction', order=2, effect_error='cp', selected_factors=['Temperature','Alcohol/oil']).surface(v1=v1,v2=v2,plot3D=True, significant_coeff=True)
+```
+![imagem](https://github.com/user-attachments/assets/4bba62a7-6df0-4aea-978b-b1560fa126b4)
+
 # Notes:
 - This class is suitable for regression calculations in factorial designs and provides visual and numerical tools for interpreting experimental results. Input data should be formatted appropriately:
   - X: should represent the coded matrix of factors. Interactions can be calculated within this class.
   - y: should be the corresponding response vector or matrix.
+- Graphs:
+  - Automatically saved as image files.
   
 ## License
 Copyright (C) 2025 Romulo Pires
