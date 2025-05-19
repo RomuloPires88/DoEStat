@@ -229,7 +229,7 @@ doe.Taguchi(X,y).anova(method='Replica')
    doe.Analysis(X, y).error
   ```
 
-`effect_analysis(exclude_variables=None)`
+`effect_analysis()`
 - Analyzes the effects of factors and optionally excludes specified variables.
 - Generates:
   - Probability Effects Plot: Visualizes the Gaussian distribution of effects, with confidence intervals.
@@ -285,76 +285,76 @@ doe.Analysis(X,y,yc,type_matrix='interaction', effect_error='cp').effect_analysi
 - Generates and displays a DataFrame summarizing the analysis of variance, includes results for the F-test, p-value, and evaluation of null and alternative hypotheses.
 - **Usage**:
   ```python
-  `doe.Regression(X, y).effect_analysis()`
+    doe.Regression(X, y).effect_analysis()
   ```
 
 `regression_plot`
 - Generates and displays the regression plot using the provided matrix data.
 - **Usage**:
   ```python
-  `doe.Regression(X, y).regression_plot`
+   doe.Regression(X, y).regression_plot
   ```
 `residual_plot`
 - Generates and displays the residual plot for the experimental data.
 - **Usage**:
   ```python
-  `doe.Regression(X, y).residual_plot`
+   doe.Regression(X, y).residual_plot
   ```
 
 `histogram_plot`
 - Generates and displays the histogram plot for the distribution of residuals.
 - **Usage**:
   ```python
-  `doe.Regression(X, y).histogram_plot`
+   doe.Regression(X, y).histogram_plot
   ```
 
 `coefficient_error_plot`
 - Generates and displays the confidence intervals for the calculated regression coefficients.
 - **Usage**:
   ```python
-  `doe.Regression(X, y).coefficient_error_plot`
+   doe.Regression(X, y).coefficient_error_plot
   ```
   
 `analysis`
 - Displays Regression plot, Residual plot, Histogram plot, Coefficient error plot.
 - **Usage**:
   ```python
-  `doe.Regression(X, y).analysis`
+   doe.Regression(X, y).analysis
   ```
 
 `coefficient`
 - Generates and displays the table with the model coefficients and if their are significants.
 - **Usage**:
   ```python
-  `doe.Regression(X, y).coefficient`
+   doe.Regression(X, y).coefficient
   ```
 
-`surface`
+`surface()`
 - Generates and displays the response surface model and corresponding contour plot or a 3D surface model for better visualization.
 - **Usage**:
   ```python
-  `doe.Regression(X, y).surface()`
+   doe.Regression(X, y).surface()
   ```
 
-`show_equation`
+`show_equation()`
 - Displays the model equation.
 - **Usage**:
   ```python
-  `doe.Regression(X, y).show_equation()`
+   doe.Regression(X, y).show_equation()
   ```
 
-`find_xy`
+`find_xy()`
 - Finds possible (x, y) values that satisfy the response surface equation for a given z.
 - **Usage**:
   ```python
-  `doe.Regression(X, y).find_xy()`
+   doe.Regression(X, y).find_xy()
   ```
 
 ## Examples Usage
 Here is an example to demonstrate the functionality of the `Regression` class:
-```python
-doe.Regression(X,y,yc, type_matrix='interaction', order=2, effect_error='cp').analysis
-```
+  ```python
+   doe.Regression(X,y,yc, type_matrix='interaction', order=2, effect_error='cp').analysis
+  ```
 ![imagem](https://github.com/user-attachments/assets/6ac5f2bf-b322-4121-92f0-81fa966991aa)
 
 ![imagem](https://github.com/user-attachments/assets/6b5c3238-e40a-4fd7-b0e6-a5e7c049f287)
@@ -363,11 +363,11 @@ doe.Regression(X,y,yc, type_matrix='interaction', order=2, effect_error='cp').an
 
 ![imagem](https://github.com/user-attachments/assets/7e3209ad-b9aa-4852-af70-bc0654d58a57)
 
-```python
-v1=[70,85]
-v2=[6,13.83]
-doe.Regression(X,y,yc, type_matrix='interaction', order=2, effect_error='cp', selected_factors=['Temperature','Alcohol/oil']).surface(v1=v1,v2=v2,plot3D=True, significant_coeff=True)
-```
+  ```python
+    v1=[70,85]
+    v2=[6,13.83]
+    doe.Regression(X,y,yc, type_matrix='interaction', order=2, effect_error='cp', selected_factors=['Temperature','Alcohol/oil']).surface(v1=v1,v2=v2,plot3D=True, significant_coeff=True)
+  ```
 ![imagem](https://github.com/user-attachments/assets/4bba62a7-6df0-4aea-978b-b1560fa126b4)
 
 # Notes:
