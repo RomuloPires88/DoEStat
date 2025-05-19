@@ -348,18 +348,23 @@ doe.Analysis(X,y,yc,type_matrix='interaction', effect_error='cp').effect_analysi
   `doe.Regression(X, y).find_xy()`
   ```
 
-    Notes:
-    ------
-    - This class is suitable for regression calculations in factorial designs and provides visual and numerical tools for interpreting experimental results.
-    - Input data should be formatted appropriately:
-      - `X` should represent the coded matrix of factors. Interactions can be calculated within this class.
-      - `y` should be the corresponding response vector or matrix.
-    """
-
+# Notes:
+- This class is suitable for regression calculations in factorial designs and provides visual and numerical tools for interpreting experimental results. Input data should be formatted appropriately:
+  - X: should represent the coded matrix of factors. Interactions can be calculated within this class.
+  - y: should be the corresponding response vector or matrix.
+  
 ## License
+Copyright (C) 2025 Romulo Pires
 
-## Acknowledgments
-This class is inspired by the robust statistical methods of the **Taguchi Method**, widely used in quality engineering to optimize processes and improve product quality.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
 
-
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
