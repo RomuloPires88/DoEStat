@@ -1,5 +1,7 @@
 # DoE Statistc (doestat.py)
 
+![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)
+
 A Python implementation for Design of Experiments (DOE), providing tools to optimize processes, analyze factor effects, and evaluate quality metrics in robust engineering applications.
 
 ## Overview
