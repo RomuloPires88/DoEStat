@@ -114,7 +114,7 @@ pip install pandas numpy matplotlib.pyplot plotly.graph_objs scipy.stats seaborn
   doe.Taguchi(X, y).anova()
   ```
 
-## Notes
+## 📎 Notes
 - The input data **X** and **y** must be formatted correctly:
   - **X**: Matrix representing the experimental design.
   - **y**: Response vector or matrix with dimensions consistent with **X**.
