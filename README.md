@@ -4,7 +4,7 @@
 
 A Python implementation for Design of Experiments (DOE), providing tools to optimize processes, analyze factor effects, and evaluate quality metrics in robust engineering applications.
 
-## Overview
+## 📌 Overview
 Design of Experiments (DOE) is a powerful approach for systematically planning, conducting, analyzing, and interpreting controlled tests to evaluate factor effects on responses. This package offers two distinct yet complementary methods to support experimental design and analysis:
 
 1 - Taguchi Method:
@@ -21,7 +21,7 @@ The `Taguchi` approach provides a robust framework for process optimization and 
 - Support for error estimation using t-Student distribution, enhancing the reliability of conclusions.
 - Compatibility with both simple and interaction-inclusive experimental designs.
 
-## Features
+## ✨ Features
 ### Key Functionalities
 #### Taguchi Method
 - **Signal-to-Noise (S/N) Ratios**: Evaluate quality characteristics with:
@@ -49,7 +49,7 @@ The `Taguchi` approach provides a robust framework for process optimization and 
 - **Response Surface**: Generate s surface response and contour plot with coded data or real values.
 - **Model Equation**: Displays the model equation.
 
-## Installation
+## 🔧 Installation
 Ensure you have Python and the necessary dependencies installed. This class requires standard scientific libraries like `numpy` and `matplotlib`.
 ```bash
 pip install pandas numpy matplotlib.pyplot plotly.graph_objs scipy.stats seaborn IPython.display sys itertools re
@@ -120,7 +120,7 @@ pip install pandas numpy matplotlib.pyplot plotly.graph_objs scipy.stats seaborn
   - **y**: Response vector or matrix with dimensions consistent with **X**.
 - For MRPI with multiple responses, ensure quality characteristics (**r1, r2**) and methods (`"wgt"` or `"env"`) are appropriately defined.
 
-## Example Usage
+## 🚀 Example Usage
 Here is an example to demonstrate the functionality of the `Taguchi` class:
 
 ```python
@@ -241,7 +241,7 @@ doe.Taguchi(X,y).anova(method='Replica')
    doe.Analysis(X, y).effect_analysis()
   ```
   
-# Notes:
+# 📎Notes:
 - This class is ideal for factorial designs and provides tools to interpret experimental results. Input Requirements:
   - X: Matrix of coded factors (interactions can be generated within the class).
   - y: Response vector or matrix (should be formatted appropriately).
@@ -249,7 +249,7 @@ doe.Taguchi(X,y).anova(method='Replica')
 - Graphs:
   - Automatically saved as image files.
 
-## Examples Usage
+## 🚀 Examples Usage
 Here is an example to demonstrate the functionality of the `Analysis` class:
 ```python
 doe.Analysis(X,y,yc,type_matrix='interaction', effect_error='cp').effect_analysis()
@@ -352,7 +352,7 @@ doe.Analysis(X,y,yc,type_matrix='interaction', effect_error='cp').effect_analysi
    doe.Regression(X, y).find_xy()
   ```
 
-## Examples Usage
+## 🚀 Examples Usage
 Here is an example to demonstrate the functionality of the `Regression` class:
   ```python
    doe.Regression(X,y,yc, type_matrix='interaction', order=2, effect_error='cp').analysis
@@ -372,7 +372,7 @@ Here is an example to demonstrate the functionality of the `Regression` class:
   ```
 ![imagem](https://github.com/user-attachments/assets/4bba62a7-6df0-4aea-978b-b1560fa126b4)
 
-# Notes:
+# 📎Notes:
 - This class is suitable for regression calculations in factorial designs and provides visual and numerical tools for interpreting experimental results. Input data should be formatted appropriately:
   - X: should represent the coded matrix of factors. Interactions can be calculated within this class.
   - y: should be the corresponding response vector or matrix.
