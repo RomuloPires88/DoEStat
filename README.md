@@ -54,6 +54,17 @@ Ensure you have Python and the necessary dependencies installed. This class requ
 ```bash
 pip install pandas numpy matplotlib.pyplot plotly.graph_objs scipy.stats seaborn IPython.display sys itertools re
 ```
+Recommended Stable Versions
+```bash
+pandas:     2.3.1
+numpy:      1.26.4
+matplotlib: 3.10.5
+plotly:     5.24.1
+scipy:      1.13.1
+seaborn:    0.13.2
+IPython:    8.27.0
+Python:     3.12.7
+```
 
 ## Class Reference
 
