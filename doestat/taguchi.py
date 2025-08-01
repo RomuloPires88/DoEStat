@@ -3,7 +3,7 @@
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
-# any later version.
+# (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -197,7 +197,8 @@ class Taguchi:
         
         # For each collunm in X, calculate sum by level
         for column in self.X.columns:
-            grouped = self.X.groupby(column).apply(lambda group: combined_responses[group.index].sum())
+            grouped = self.X.groupby(column).apply(lambda group: combined_responses[group.index].sum(),
+                                                  include_groups=False)
             results[column] = pd.DataFrame({
                 'Level': grouped.index,
                 'Sum': grouped.values,
@@ -212,7 +213,8 @@ class Taguchi:
         
         # For each collunm in X, calculate mean by level
         for column in self.X.columns:
-            grouped = self.X.groupby(column).apply(lambda group: combined_responses[group.index].mean())
+            grouped = self.X.groupby(column).apply(lambda group: combined_responses[group.index].mean(),
+                                                  include_groups=False)
             diff_abs = grouped.max() - grouped.min()
             results[column] = pd.DataFrame({
                 'Level': grouped.index,
@@ -430,7 +432,8 @@ class Taguchi:
         # Calculate the mean for factors by levels
         combinations = (
             self.X.groupby([factor1, factor2])
-            .apply(lambda group: self.y.iloc[group.index].mean(axis=1).mean())  # Mean of experimental results
+            .apply(lambda group: self.y.iloc[group.index].mean(axis=1).mean(),
+                  include_groups=False)  # Mean of experimental results
             .reset_index(name="Mean")
         )
         
@@ -503,7 +506,8 @@ class Taguchi:
         dof = {}
         combined_responses = self.y.sum(axis=1)
         for column in self.X.columns:
-            grouped = self.X.groupby(column).apply(lambda group: combined_responses[group.index].sum())
+            grouped = self.X.groupby(column).apply(lambda group: combined_responses[group.index].sum(),
+                                                  include_groups=False)
             dof_value = len(grouped.index) - 1 
             dof[column] = dof_value
         # MSA: Mean Squares for each factor
