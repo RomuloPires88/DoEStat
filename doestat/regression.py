@@ -98,18 +98,23 @@ class Regression:
         Generates and displays:
         - The table with the model coefficients and if their are significants.  
         Usage: `doe.Regression(X, y).coefficient`      
-    8. surface:
+    8. curve:
+        Generates and displays:
+        - The curve plot for one variable.
+        - A 1D curve model for better visualization.
+        Usage: `doe.Regression(X, y).curve()`
+    9. surface:
         Generates and displays:
         - The response surface model and corresponding contour plot.  
         - A 3D surface model for better visualization.
         Usage: `doe.Regression(X, y).surface()`      
-    9. show_equation:
+    10. show_equation:
         Displays:
         - The model equation.  
         Usage: `doe.Regression(X, y).show_equation()`   
-    10. find_xy:
+    11. find_xy:
         - Finds possible (x, y) values that satisfy the response surface equation for a given z.
-        Usage: `doe.Regression(X, y).find_xy()`   
+        Usage: `doe.Regression(X, y).find_xy()`  
 
     Notes:
     ------
@@ -441,6 +446,122 @@ class Regression:
         display(HTML("<div style='text-align: center; font-weight: bold; font-size: 18px;'>Regression of Coefficients</div>")) 
         self.coefficient_error_plot
         # self.ftest_plot
+    
+    def curve(self,v=[], resolution = 101, significant_coeff = False, exclude_variables = None):
+        """
+        Generates and displays the 1D Curve Model.
+        
+        Parameters:
+        -----------
+        v : list, optional (default=[])
+            A list containing the real minimum and maximum values for the selected variable.  
+            Example: `[min_value, max_value]`.
+        resolution: int, optional (default=101)
+            Controls the precision of the x calculations by defining the number of points in the grid.
+            The default value results in a grid of 101 points for calculation.
+        significant_coeff: bool, optional(default=False)
+            If `True`, the curve will be calculated using only the significant coefficients that fall within the confidence interval.
+        exclude_variables : list, optional (default=None)
+            List of variable names to exclude (set their coefficients to zero).
+    
+        Returns:
+        --------
+        - A graphical representation of the 1D Curve Model.
+    
+        Example:
+        --------
+        Generate the curve plot:
+        regression.curve(v=[35, 45])
+    
+        """
+        data = self.__var_coeffs
+        coefficients = data['b']
+        errors = data['ci']
+        
+        # Check if only significant coefficients should be used
+        if significant_coeff:
+            # Set coefficients to zero if they are not significant
+            coefficients = [coef if abs(coef) > error else 0 for coef, error in zip(coefficients, errors)]
+
+        # Convert to named series for easier manipulation
+        b_named = pd.Series(coefficients, index=self.Xb.columns)
+        # Exclude variables by zeroing their coefficients
+        if exclude_variables:
+            valid_variables = [var for var in exclude_variables if var in b_named.index]
+            invalid_variables = [var for var in exclude_variables if var not in b_named.index]
+    
+            if not valid_variables:
+                raise ValueError("None of the variables to exclude were found in the model.")
+            if invalid_variables:
+                raise ValueError(f"The following variables were not found in the model: {', '.join(invalid_variables)}")
+    
+            b_named[valid_variables] = 0
+
+        # Assign the processed coefficients to the final variable
+        b0, b1, b11 = b_named.values
+        
+        cod_X = {}
+        for col in self.selected_factors:
+            min_value = self.X[col].min()
+            max_value = self.X[col].max()
+            cod_X[col] = {"min": min_value, "max": max_value}
+        array_cod1 = np.linspace(cod_X[self.selected_factors[0]]['min'] ,cod_X[self.selected_factors[0]]['max'] ,num=resolution)
+        x = np.linspace(cod_X[self.selected_factors[0]]['min'] ,cod_X[self.selected_factors[0]]['max'] ,num=resolution)
+        self.z = (b0 + b1*x + b11*x**2).round(4)
+        
+        if v:
+            if len(v) == 2:
+                array_real1 = np.linspace(v[0],v[1], num=resolution)
+                x = np.linspace(v[0],v[1],num=resolution)
+            elif len(v) != 2:
+                raise ValueError('It is necessary to provide exactly two values for both variable 1 and variable 2.')
+        else:
+            pass 
+
+        z = self.z
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=x, y=z, mode = 'lines', line=dict(color='black', width=1)))
+
+        fig.update_layout(
+            xaxis_title=self.selected_factors[0],
+            yaxis_title='Z',
+            width=800,
+            height=600,
+
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+
+            font=dict(
+                family="Arial",
+                size=12,
+                color="Black"
+            ),
+
+            margin=dict(l=80, r=40, b=80, t=80)
+        )
+
+        axis_style = dict(
+            showline=True,
+            linewidth=1,
+            linecolor='black',
+            mirror=True,
+            ticks='inside',
+            tickwidth=1,
+            tickcolor='black',
+            showgrid=True,
+            gridcolor='lightgrey',
+            gridwidth=0.5
+        )
+
+        fig.update_xaxes(**axis_style)
+        fig.update_yaxes(**axis_style)
+        
+        display(HTML("<div style='text-align: center; font-weight: bold; font-size: 18px;'>Response Plot</div>")) 
+        
+        self.show_equation(significant_coeff=significant_coeff,exclude_variables=exclude_variables)
+        # iplot(fig)
+        fig.show()
+
 
     def surface(self, v1=[], v2=[], resolution = 101, significant_coeff = False, plot3D = False, exclude_variables = None):
         """
