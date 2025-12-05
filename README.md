@@ -392,7 +392,7 @@ Here is an example to demonstrate the functionality of the `Regression` class:
 
   ```python
     v=[16,30]
-    doe.Regression(X4,yzn,yczn,type_matrix='interaction',effect_error='cp',regression='quadratic',selected_factors=['time/min']).curve(v=v)
+    doe.Regression(X4,yzn,yczn,effect_error='cp',regression='quadratic',selected_factors=['time/min']).curve(v=v)
   ```
 <img width="802" height="635" alt="imagem" src="https://github.com/user-attachments/assets/c56d0545-36c1-4170-9a7a-72019e21ee81" />
 
