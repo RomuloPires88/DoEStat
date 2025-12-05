@@ -623,7 +623,7 @@ class Regression:
             b_named[valid_variables] = 0
 
         # Assign the processed coefficients to the final variable
-        b0, b1, b2, b11, b22, b12 = b_named.values
+        b0, b1, b2, b12, b11, b22 = b_named.values
         
         cod_X = {}
         for col in self.selected_factors:
@@ -633,7 +633,7 @@ class Regression:
         array_cod1 = np.linspace(cod_X[self.selected_factors[0]]['min'] ,cod_X[self.selected_factors[0]]['max'] ,num=resolution)
         array_cod2 = np.linspace(cod_X[self.selected_factors[1]]['min'] ,cod_X[self.selected_factors[1]]['max'] ,num=resolution)
         x,y = np.meshgrid(array_cod1,array_cod2)
-        self.z = (b0 + b1*x + b2*y + b11*x**2 + b22*y**2 + b12*x*y).round(4)
+        self.z = (b0 + b1*x + b2*y + b12*x*y + b11*x**2 + b22*y**2).round(4)
         
         if len(v1) == 2 and len(v2) == 2:
             array_real1 = np.linspace(v1[0],v1[1], num=resolution)
@@ -725,7 +725,7 @@ class Regression:
             coefficients = [coef if abs(coef) > error else 0 for coef, error in zip(coefficients, errors)]
         
         # Assign the processed coefficients to the final variable
-        b0, b1, b2, b11, b22, b12 = coefficients
+        b0, b1, b2, b12, b11, b22 = coefficients
 
         cod_X = {}
         for col in self.selected_factors:
@@ -735,7 +735,7 @@ class Regression:
         array_cod1 = np.linspace(cod_X[self.selected_factors[0]]['min'] ,cod_X[self.selected_factors[0]]['max'] ,num=resolution)
         array_cod2 = np.linspace(cod_X[self.selected_factors[1]]['min'] ,cod_X[self.selected_factors[1]]['max'] ,num=resolution)
         x,y = np.meshgrid(array_cod1,array_cod2)
-        self.z = (b0 + b1*x + b2*y + b11*x**2 + b22*y**2 + b12*x*y).round(4)
+        self.z = (b0 + b1*x + b2*y  + b12*x*y + b11*x**2 + b22*y**2).round(4)
         
         if len(v1) == 2 and len(v2) == 2:
             array_real1 = np.linspace(v1[0],v1[1], num=resolution)
