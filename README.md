@@ -394,8 +394,7 @@ Here is an example to demonstrate the functionality of the `Regression` class:
     v=[16,30]
     doe.Regression(X4,yzn,yczn,type_matrix='interaction',effect_error='cp',regression='quadratic',selected_factors=['time/min']).curve(v=v)
   ```
-<img width="799" height="583" alt="imagem" src="https://github.com/user-attachments/assets/02612441-4eb1-4c67-8a3c-737e0e7c9e57" />
-
+<img width="802" height="635" alt="imagem" src="https://github.com/user-attachments/assets/c56d0545-36c1-4170-9a7a-72019e21ee81" />
 
 # 📎Notes:
 - This class is suitable for regression calculations in factorial designs and provides visual and numerical tools for interpreting experimental results. Input data should be formatted appropriately:
