@@ -342,6 +342,13 @@ doe.Analysis(X,y,yc,type_matrix='interaction', effect_error='cp').effect_analysi
    doe.Regression(X, y).coefficient
   ```
 
+`curve()`
+- Generates and displays a 1D graph model for better visualization.
+- **Usage**:
+  ```python
+   doe.Regression(X, y).curve()
+  ```
+
 `surface()`
 - Generates and displays the response surface model and corresponding contour plot or a 3D surface model for better visualization.
 - **Usage**:
@@ -382,6 +389,13 @@ Here is an example to demonstrate the functionality of the `Regression` class:
     doe.Regression(X,y,yc, type_matrix='interaction', order=2, effect_error='cp', selected_factors=['Temperature','Alcohol/oil']).surface(v1=v1,v2=v2,plot3D=True, significant_coeff=True)
   ```
 ![imagem](https://github.com/user-attachments/assets/4bba62a7-6df0-4aea-978b-b1560fa126b4)
+
+  ```python
+    v=[16,30]
+    doe.Regression(X4,yzn,yczn,type_matrix='interaction',effect_error='cp',regression='quadratic',selected_factors=['time/min']).curve(v=v)
+  ```
+<img width="799" height="583" alt="imagem" src="https://github.com/user-attachments/assets/02612441-4eb1-4c67-8a3c-737e0e7c9e57" />
+
 
 # 📎Notes:
 - This class is suitable for regression calculations in factorial designs and provides visual and numerical tools for interpreting experimental results. Input data should be formatted appropriately:
