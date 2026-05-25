@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "doestat"
+version = "0.1.0"
+description = "Design of Experiments statistical tools"
+authors = [
+  { name="Romulo Pires", email="romulo.pires@outlook.com" }
+]
+readme = "README.md"
+requires-python = ">=3.8"
+
+dependencies = [
+  "numpy",
+  "pandas",
+  "scipy",
+  "matplotlib",
+  "seaborn",
+  "IPython"
+]
+
+[project.urls]
+Homepage = "https://github.com/RomuloPires88/DoEStat"
