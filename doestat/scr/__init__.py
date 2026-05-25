@@ -20,3 +20,4 @@ from .analysis import Analysis
 from .regression import Regression
 
 __all__ = ["Taguchi", "Auxvalues", "Analysis", "Regression"]
+__version__ = "0.1.0"
