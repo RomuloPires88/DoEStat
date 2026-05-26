@@ -4,6 +4,24 @@
 
 A Python implementation for Design of Experiments (DOE), providing tools to optimize processes, analyze factor effects, and evaluate quality metrics in robust engineering applications.
 
+## ⚠️ Environment Compatibility
+
+Currently, **DoEStat** is primarily developed and tested for use in **Jupyter Notebook** environments.
+
+Some features — especially those related to visualization (e.g., Plotly rendering and formatted outputs) — rely on Jupyter-specific components such as `IPython.display` and MIME rendering.
+
+While the library may work in standard Python scripts, full functionality is currently optimized for Jupyter environments.
+
+> ⚠️ Support for broader environments (e.g., standalone scripts, web apps) is planned for future releases.
+
+### Recommended setup
+
+Make sure you are running DoEStat in a Jupyter environment such as:
+
+- Jupyter Notebook
+- JupyterLab
+- VS Code (with Jupyter extension)
+
 ## 📌 Overview
 Design of Experiments (DOE) is a powerful approach for systematically planning, conducting, analyzing, and interpreting controlled tests to evaluate factor effects on responses. This package offers two distinct yet complementary methods to support experimental design and analysis:
 
