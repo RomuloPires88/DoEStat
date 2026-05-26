@@ -1,4 +1,4 @@
-# DoE Statistc (doestat.py)
+# DoE Statistc 
 
 ![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)
 
@@ -53,6 +53,8 @@ The `Taguchi` approach provides a robust framework for process optimization and 
 Ensure you have Python and the necessary dependencies installed. This class requires standard scientific libraries like `numpy` and `matplotlib`.
 ```bash
 pip install pandas numpy matplotlib.pyplot plotly.graph_objs scipy.stats seaborn IPython.display sys itertools re
+
+pip install doestat
 ```
 Recommended Stable Versions
 ```bash
